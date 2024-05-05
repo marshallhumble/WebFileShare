@@ -31,15 +31,15 @@ func main() {
 	}))
 
 	//Get the DB Details from the .env file, !TODO: change to OS Vars in prod
-	dbName, dbUser, dbPass, err := readFileEnvs(".env")
+	dbPass, dbUser, dbName, err := readFileEnvs(".env")
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	//dsn := flag.String("dsn", "fs_user:fs_user_pass@/files?parseTime=true", "MySQL data source name")
-	dsn := flag.String("dsn", dbUser+":"+dbPass+"@/"+dbName+"?parseTime=true", "MySQL DSN")
+	dsn := flag.String("dsn", dbUser+":"+dbPass+"@/"+dbName+"?parseTime=true", "MySQL data source name")
+
 	flag.Parse()
 
 	db, err := openDB(*dsn)
@@ -98,9 +98,9 @@ func readFileEnvs(fileName string) (dbPass string, dbUser string, dbName string,
 
 	text := string(data)
 
-	dbName = getVariable(text, "DB_NAME")
-	dbPass = getVariable(text, "DB_PASS")
-	dbUser = getVariable(text, "DB_USER")
+	dbName = getVariable(text, "DB_DATABASE")
+	dbPass = getVariable(text, "DB_PASSWORD")
+	dbUser = getVariable(text, "DB_USERNAME")
 
 	return dbPass, dbUser, dbName, nil
 }
