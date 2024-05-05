@@ -1,0 +1,34 @@
+{{define "title"}}Create a New Snippet{{end}}
+
+{{define "main"}}
+<form enctype="multipart/form-data" action='/files/create' method='POST'>
+    <div>
+            <label>Recipient Name:</label>
+            <input type='text' name='recipientName'>
+    </div>
+    <div>
+            <label>Recipient Email:</label>
+            <input type='text' name='recipientEmail'>
+    </div>
+    <div>
+            <label>Sender Name:</label>
+            <input type='text' name='senderName'>
+    </div>
+    <div>
+            <label>Sender Email:</label>
+            <input type='text' name='senderEmail'>
+    </div>
+    <div>
+        <label>Delete in:</label>
+        <input type='radio' name='expires' value='30' checked> One Month
+        <input type='radio' name='expires' value='7'> One Week
+        <input type='radio' name='expires' value='3'> Three Days
+    </div>
+    <div>
+        <input type='file' name='uploadFile' />
+    <div>
+    </div>
+        <input type='submit' value='Upload File'>
+    </div>
+</form>
+{{end}}

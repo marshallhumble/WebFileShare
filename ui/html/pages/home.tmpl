@@ -1,0 +1,23 @@
+{{define "title"}}Home{{end}}
+
+{{define "main"}}
+    <h2>Latest Files</h2>
+    {{if .SharedFiles}}
+     <table>
+        <tr>
+            <th>Title</th>
+            <th>Recipient User Name</th>
+            <th>ID</th>
+        </tr>
+        {{range .SharedFiles}}
+        <tr>
+            <td><a href='/files/view/{{.Id}}'>{{.DocName}}</a></td>
+            <td>{{.RecipientUserName}}</td>
+            <td>#{{.Id}}</td>
+        </tr>
+        {{end}}
+    </table>
+    {{else}}
+        <p>There's nothing to see here... yet!</p>
+    {{end}}
+{{end}}

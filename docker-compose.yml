@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql
+    shm_size: 128mb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ~/apps/mysql:/var/lib/mysql/
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+ 
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
