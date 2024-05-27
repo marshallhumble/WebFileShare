@@ -7,12 +7,20 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
 	//Internal
 	"fileshare/internal/models"
+	"fileshare/internal/validator"
 )
 
-const MAX_UPLOAD_SIZE = 1024 * 1024
+type fileCreateForm struct {
+	DocName             string `form:"-"`
+	RecipientUserName   string `form:"recipientName"`
+	RecipientEmail      string `form:"recipientEmail"`
+	SenderUserName      string `form:"senderName"`
+	SenderEmail         string `form:"senderEmail"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
+}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
@@ -56,24 +64,22 @@ func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
 func (app *application) fileCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 
+	data.Form = fileCreateForm{
+		Expires: 365,
+	}
 	app.render(w, r, http.StatusOK, "create.tmpl", data)
 }
 
 func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
+	var form fileCreateForm
 
-	r.Body = http.MaxBytesReader(w, r.Body, MAX_UPLOAD_SIZE)
-	if err := r.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	if err := r.ParseForm(); err != nil {
+	err := app.decodePostForm(r, &form)
+	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
 	file, fHeader, err := r.FormFile("uploadFile")
-
 	if err != nil {
 		app.logger.Error("Handler Error: ", err)
 		app.clientError(w, http.StatusBadRequest)
@@ -81,22 +87,30 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
+	form.CheckField(validator.NotBlank(form.RecipientUserName),
+		"recipientName", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.RecipientEmail),
+		"recipientEmail", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.SenderUserName),
+		"senderName", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.SenderEmail),
+		"senderEmail", "This field cannot be blank")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+		return
+	}
+
+	//If there are no errors let's copy the file
 	f, err := os.OpenFile("./uploads/"+fHeader.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 
 	defer f.Close()
 	io.Copy(f, file)
 
-	var (
-		docName           = fHeader.Filename
-		recipientUserName = r.PostFormValue("recipientName")
-		senderUserName    = r.PostFormValue("senderName")
-		expiresAt         = 7
-		senderEmail       = r.PostFormValue("senderEmail")
-		recipientEmail    = r.PostFormValue("recipientEmail")
-	)
-
-	id, err := app.sharedFile.Insert(docName, recipientUserName, senderUserName, expiresAt, senderEmail,
-		recipientEmail)
+	id, err := app.sharedFile.Insert(fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
+		form.SenderEmail, form.RecipientEmail)
 
 	if err != nil {
 		app.serverError(w, r, err)

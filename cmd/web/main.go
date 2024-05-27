@@ -14,6 +14,7 @@ import (
 	"fileshare/internal/models"
 
 	//External
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -21,6 +22,7 @@ type application struct {
 	logger        *slog.Logger
 	sharedFile    *models.SharedFileModel
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -56,10 +58,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	formDecoder := form.NewDecoder()
+
 	app := &application{
 		logger:        logger,
 		sharedFile:    &models.SharedFileModel{DB: db},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	logger.Info("starting server on %s", *addr)

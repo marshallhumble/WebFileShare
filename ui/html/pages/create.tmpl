@@ -1,29 +1,47 @@
-{{define "title"}}Create a New Snippet{{end}}
+{{define "title"}}Upload a New File{{end}}
 
 {{define "main"}}
 <form enctype="multipart/form-data" action='/files/create' method='POST'>
     <div>
             <label>Recipient Name:</label>
-            <input type='text' name='recipientName'>
+            {{with .Form.FieldErrors.recipientName}}
+                <label class='error'>{{.}}</label>
+            {{end}}
+
+            <input type='text' name='recipientName' value='{{.Form.RecipientUserName}}'>
     </div>
     <div>
             <label>Recipient Email:</label>
-            <input type='text' name='recipientEmail'>
+            {{with .Form.FieldErrors.recipientEmail}}
+                <label class='error'>{{.}}</label>
+            {{end}}
+
+            <input type='text' name='recipientEmail' value='{{.Form.RecipientEmail}}'>
     </div>
     <div>
             <label>Sender Name:</label>
-            <input type='text' name='senderName'>
+            {{with .Form.FieldErrors.recipientName}}
+                 <label class='error'>{{.}}</label>
+            {{end}}
+            <input type='text' name='senderName' value='{{.Form.SenderUserName}}'>
     </div>
     <div>
-            <label>Sender Email:</label>
-            <input type='text' name='senderEmail'>
-    </div>
+             <label>Sender Email:</label>
+                {{with .Form.FieldErrors.senderEmail}}
+                     <label class='error'>{{.}}</label>
+                {{end}}
+             <input type='text' name='senderEmail' value='{{.Form.SenderEmail}}'>
+        </div>
     <div>
-        <label>Delete in:</label>
-        <input type='radio' name='expires' value='30' checked> One Month
-        <input type='radio' name='expires' value='7'> One Week
-        <input type='radio' name='expires' value='3'> Three Days
-    </div>
+            <label>Delete in:</label>
+            <!-- And render the value of .Form.FieldErrors.expires if it is not empty. -->
+            {{with .Form.FieldErrors.expires}}
+                <label class='error'>{{.}}</label>
+            {{end}}
+            <input type='radio' name='expires' value='365' {{if (eq .Form.Expires 365)}}checked{{end}}> One Year
+            <input type='radio' name='expires' value='7' {{if (eq .Form.Expires 7)}}checked{{end}}> One Week
+            <input type='radio' name='expires' value='1' {{if (eq .Form.Expires 1)}}checked{{end}}> One Day
+        </div>
     <div>
         <input type='file' name='uploadFile' />
     <div>

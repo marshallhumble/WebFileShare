@@ -13,6 +13,7 @@ type templateData struct {
 	CurrentYear int
 	SharedFile  models.SharedFile
 	SharedFiles []models.SharedFile
+	Form        any
 }
 
 func humanDate(t time.Time) string {
