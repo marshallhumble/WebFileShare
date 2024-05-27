@@ -67,7 +67,7 @@ func main() {
 		formDecoder:   formDecoder,
 	}
 
-	logger.Info("starting server on %s", *addr)
+	logger.Info("starting server on %s", *addr, "")
 
 	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
