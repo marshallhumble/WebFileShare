@@ -28,10 +28,15 @@ jobs:
       run: go test -v ./...
       
     - name: Gosec Security Checker
-    # You may pin to the exact commit or the version.
-    # uses: securego/gosec@55d79496019a560e16e73e1948dee20a1fad631a
       uses: securego/gosec@v2.18.2
       with:
         # Arguments for gosec
         args: ./.. # default is -h
+    - name: Check code formatting using gofmt
+      uses: Jerome1337/gofmt-action@v1.0.5
+      with:
+        # Path used by gofmt command
+        gofmt-path: ./ # optional, default is ./
+        # Flags to pass to gofmt, e.g. -d or -l
+        #gofmt-flags: # optional, default is -l
           
