@@ -117,5 +117,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
+
 	http.Redirect(w, r, fmt.Sprintf("/files/view/%d", id), http.StatusSeeOther)
 }
