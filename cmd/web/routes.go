@@ -16,16 +16,14 @@ func (app *application) routes() http.Handler {
 	mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	//Create filesystem for uploaded files
-	//uploadedFiles := http.FileServer(neuteredFileSystem{http.Dir("./uploads")})
-	//mux.Handle("/uploads", http.NotFoundHandler())
-	//mux.Handle("POST /uploads/", http.StripPrefix("/uploads", uploadedFiles))
+	//dynamic middleware route
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
 
 	//All other routes
-	mux.HandleFunc("GET /{$}", app.home)
-	mux.HandleFunc("GET /files/view/{id}", app.fileView)
-	mux.HandleFunc("GET /files/create", app.fileCreate)
-	mux.HandleFunc("POST /files/create", app.fileCreatePost)
+	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	mux.Handle("GET /files/view/{id}", dynamic.ThenFunc(app.fileView))
+	mux.Handle("GET /files/create", dynamic.ThenFunc(app.fileCreate))
+	mux.Handle("POST /files/create", dynamic.ThenFunc(app.fileCreatePost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
 
