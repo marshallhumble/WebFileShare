@@ -17,16 +17,27 @@ func (app *application) routes() http.Handler {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	//dynamic middleware route
-	dynamic := alice.New(app.sessionManager.LoadAndSave)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
+
+	//Login protected route
+	protected := dynamic.Append(app.requireAuthentication)
 
 	//All other routes
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
-	mux.Handle("GET /files/view/{id}", dynamic.ThenFunc(app.fileView))
-	mux.Handle("GET /files/create", dynamic.ThenFunc(app.fileCreate))
-	mux.Handle("POST /files/create", dynamic.ThenFunc(app.fileCreatePost))
+
+	//Protected Routes - Require Login
+	mux.Handle("GET /files/view/{id}", protected.ThenFunc(app.fileView))
+	mux.Handle("GET /files/create", protected.ThenFunc(app.fileCreate))
+	mux.Handle("POST /files/create", protected.ThenFunc(app.fileCreatePost))
+
+	//User Sign-up/Login/Logout
+	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))
+	mux.Handle("POST /user/signup", dynamic.ThenFunc(app.userSignupPost))
+	mux.Handle("GET /user/login", dynamic.ThenFunc(app.userLogin))
+	mux.Handle("POST /user/login", dynamic.ThenFunc(app.userLoginPost))
+	mux.Handle("POST /user/logout", dynamic.ThenFunc(app.userLogoutPost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
-
 	return standard.Then(mux)
 }
 

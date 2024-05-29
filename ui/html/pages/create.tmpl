@@ -2,6 +2,8 @@
 
 {{define "main"}}
 <form enctype="multipart/form-data" action='/files/create' method='POST'>
+    <!-- Include the CSRF token -->
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     <div>
             <label>Recipient Name:</label>
             {{with .Form.FieldErrors.recipientName}}
