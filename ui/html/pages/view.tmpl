@@ -2,6 +2,8 @@
 
 {{define "main"}}
     {{with .SharedFile}}
+    <!-- Include the CSRF token -->
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     <div class='sharedfile'>
         <div class='metadata'>
             <strong>{{.DocName}}</strong>

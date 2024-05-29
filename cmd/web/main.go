@@ -25,6 +25,7 @@ import (
 type application struct {
 	logger         *slog.Logger
 	sharedFile     *models.SharedFileModel
+	users          *models.UserModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -72,6 +73,7 @@ func main() {
 	app := &application{
 		logger:         logger,
 		sharedFile:     &models.SharedFileModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,

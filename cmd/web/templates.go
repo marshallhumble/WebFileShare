@@ -10,11 +10,13 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	SharedFile  models.SharedFile
-	SharedFiles []models.SharedFile
-	Form        any
-	Flash       string
+	CurrentYear     int
+	SharedFile      models.SharedFile
+	SharedFiles     []models.SharedFile
+	Form            any
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
 }
 
 func humanDate(t time.Time) string {
