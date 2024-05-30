@@ -56,7 +56,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	// Write the contents of the buffer to the http.ResponseWriter. Note: this
 	// is another time where we pass our http.ResponseWriter to a function that
 	// takes an io.Writer.
-	buf.WriteTo(w)
+	_, _ = buf.WriteTo(w)
 }
 
 func (app *application) newTemplateData(r *http.Request) templateData {
@@ -98,5 +98,10 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
-	return app.sessionManager.Exists(r.Context(), "authenticatedUserID")
+	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+	if !ok {
+		return false
+	}
+
+	return isAuthenticated
 }
