@@ -4,6 +4,9 @@ import (
 	"net/http"
 	"path/filepath"
 
+	//Internal
+	"fileshare/ui"
+
 	//External
 	"github.com/justinas/alice"
 )
@@ -15,6 +18,7 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
 	mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
 	//dynamic middleware route
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
