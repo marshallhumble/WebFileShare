@@ -20,6 +20,9 @@ func (app *application) routes() http.Handler {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
+	//PING! PONG! used for testing
+	mux.HandleFunc("GET /ping", ping)
+
 	//dynamic middleware route
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
@@ -30,7 +33,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 
 	//Protected Routes - Require Login
-	mux.Handle("GET /files/view/{id}", protected.ThenFunc(app.fileView))
+	mux.Handle("GET /files/view/{id}", dynamic.ThenFunc(app.fileView))
 	mux.Handle("GET /files/create", protected.ThenFunc(app.fileCreate))
 	mux.Handle("POST /files/create", protected.ThenFunc(app.fileCreatePost))
 

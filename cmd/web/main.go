@@ -24,8 +24,8 @@ import (
 
 type application struct {
 	logger         *slog.Logger
-	sharedFile     *models.SharedFileModel
-	users          *models.UserModel
+	sharedFile     models.SharedFileModelInterface
+	users          models.UserModelInterface
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager

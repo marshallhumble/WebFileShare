@@ -1,9 +1,9 @@
 {{define "title"}}SharedFile #{{.SharedFile.Id}}{{end}}
 
 {{define "main"}}
-    {{with .SharedFile}}
     <!-- Include the CSRF token -->
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    {{with .SharedFile}}
     <div class='sharedfile'>
         <div class='metadata'>
             <strong>{{.DocName}}</strong>
