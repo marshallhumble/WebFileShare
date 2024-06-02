@@ -1,6 +1,7 @@
 {{define "title"}}Login{{end}}
 
 {{define "main"}}
+
 <form enctype="multipart/form-data" action='/user/login' method='POST' novalidate>
     <!-- Include the CSRF token -->
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>

@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type SharedFileModelInterface interface {
+	Insert(docName string, recipientUserName string, senderUserName string,
+		expiresAt int, senderEmail string, recipientEmail string) (int, error)
+	Get(id int) (SharedFile, error)
+	Latest() ([]SharedFile, error)
+}
+
 type SharedFile struct {
 	Id             int
 	DocName        string
