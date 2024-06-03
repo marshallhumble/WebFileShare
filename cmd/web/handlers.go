@@ -14,7 +14,7 @@ import (
 )
 
 type fileCreateForm struct {
-	DocName             string `form:"-"`
+	DocName             string `form:"docName"`
 	RecipientUserName   string `form:"recipientName"`
 	RecipientEmail      string `form:"recipientEmail"`
 	SenderUserName      string `form:"senderName"`
@@ -96,7 +96,9 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	file, fHeader, err := r.FormFile("uploadFile")
 	if err != nil {
 		app.logger.Error("Handler Error: ", err)
-		app.clientError(w, http.StatusBadRequest)
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnsupportedMediaType, "create.tmpl", data)
 	}
 
 	defer file.Close()
@@ -105,8 +107,12 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		"recipientName", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.RecipientEmail),
 		"recipientEmail", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.RecipientEmail, validator.EmailRX),
+		"recipientEmail", "This field must be a valid email address")
 	form.CheckField(validator.NotBlank(form.SenderUserName),
 		"senderName", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.SenderEmail, validator.EmailRX),
+		"senderEmail", "This field must be a valid email address")
 	form.CheckField(validator.NotBlank(form.SenderEmail),
 		"senderEmail", "This field cannot be blank")
 
@@ -117,11 +123,15 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//If there are no errors let's copy the file
-	f, err := os.OpenFile("./uploads/"+fHeader.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	fmt.Println(form.FieldErrors)
 
-	defer f.Close()
-	io.Copy(f, file)
+	//If there are no errors let's copy the file
+	if fHeader.Size > 0 {
+		f, _ := os.OpenFile("./uploads/"+fHeader.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+
+		defer f.Close()
+		io.Copy(f, file)
+	}
 
 	id, err := app.sharedFile.Insert(fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
 		form.SenderEmail, form.RecipientEmail)
@@ -153,9 +163,11 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
-	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX),
+		"email", "This field must be a valid email address")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
-	form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
+	form.CheckField(validator.MinChars(form.Password, 8), "password",
+		"This field must be at least 8 characters long")
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)
