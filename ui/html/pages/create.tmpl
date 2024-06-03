@@ -45,6 +45,9 @@
             <input type='radio' name='expires' value='1' {{if (eq .Form.Expires 1)}}checked{{end}}> One Day
         </div>
     <div>
+    {{with .Form.FieldErrors.uploadFile}}
+       <label class='error'>{{.}}</label>
+    {{end}}
         <input type='file' name='uploadFile' />
     <div>
     </div>
