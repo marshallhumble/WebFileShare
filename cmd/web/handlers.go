@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	//Internal
 	"fileshare/internal/models"
@@ -100,6 +101,13 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		data.Form = form
 		app.render(w, r, http.StatusUnsupportedMediaType, "create.tmpl", data)
 	}
+
+	// Replace all special characters with underscores.
+	fHeader.Filename = strings.ReplaceAll(fHeader.Filename, "/", "_")
+	fHeader.Filename = strings.ReplaceAll(fHeader.Filename, ".", "_")
+
+	// Remove all spaces.
+	fHeader.Filename = strings.ReplaceAll(fHeader.Filename, " ", "")
 
 	defer file.Close()
 
