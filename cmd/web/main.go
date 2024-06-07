@@ -29,6 +29,7 @@ type application struct {
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
+	config         models.ServerConfigInterface
 }
 
 func main() {
@@ -77,6 +78,7 @@ func main() {
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+		config:         &models.ServerConfigModel{DB: db},
 	}
 
 	tlsConfig := &tls.Config{

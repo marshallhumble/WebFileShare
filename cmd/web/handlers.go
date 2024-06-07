@@ -141,6 +141,14 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//Let's send some mail
+	err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
+		form.SenderEmail, fHeader.Filename)
+
+	if err != nil {
+		app.serverError(w, r, err)
+	}
+
 	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
 
 	http.Redirect(w, r, fmt.Sprintf("/files/view/%d", id), http.StatusSeeOther)

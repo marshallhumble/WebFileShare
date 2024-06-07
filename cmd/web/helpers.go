@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/go-playground/form/v4"
-	"github.com/justinas/nosurf"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	//External
+	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 const MaxUploadSize = 2024 * 2024
