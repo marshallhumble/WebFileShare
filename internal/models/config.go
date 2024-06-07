@@ -106,7 +106,7 @@ func (m *ServerConfigModel) SendMail(rName, sName, rEmail, sEmail, fName string)
 	sampleMsg += "Content-Type: text/html; charset=\"utf-8\"\r\n"
 	sampleMsg += "Content-Transfer-Encoding: 7bit\r\n"
 	sampleMsg += fmt.Sprintf("\r\n%s", "<html><body><h1>Hi There</h1>"+
-		"<p>This is an email to let you know you recieved a file /p></body></html>\r\n", rName)
+		"<p>This is an email to let you know you recieved a file /p></body></html>\r\n")
 
 	//place file
 	log.Println("Put file attachment")
