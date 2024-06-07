@@ -60,7 +60,7 @@ func (m *ServerConfigModel) SendMail(rName, sName, rEmail, sEmail, fName string)
 
 	tlsConfig := tls.Config{
 		ServerName:         s.mailServer,
-		InsecureSkipVerify: true,
+		InsecureSkipVerify: false,
 	}
 
 	conn, connErr := tls.Dial("tcp", fmt.Sprintf("%s:%d", s.mailServer, s.mailPort), &tlsConfig)
