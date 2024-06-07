@@ -61,7 +61,7 @@ func (m *ServerConfigModel) SendMail(rName, sName, rEmail, sEmail, fName string)
 	msg := []byte("To: " + rEmail + "\r\n" +
 		"Subject: " + sName + " has sent you" + fName + "\r\n" +
 		"\r\n" +
-		rName + "go to webapp for you file!\r\n")
+		rName + " go to webapp for you file!\r\n")
 
 	err = smtp.SendMail(server, auth, sEmail, to, msg)
 	if err != nil {
