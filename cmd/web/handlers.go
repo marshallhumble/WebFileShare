@@ -101,7 +101,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	OrginalFilename := fHeader.Filename
-	fHeader.Filename = app.SafeFileName(15)
+	fHeader.Filename = validator.SafeFileName(20)
 
 	defer file.Close()
 
