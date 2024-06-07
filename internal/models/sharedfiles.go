@@ -7,7 +7,7 @@ import (
 )
 
 type SharedFileModelInterface interface {
-	Insert(docName string, recipientUserName string, senderUserName string,
+	Insert(docName string, safeName string, recipientUserName string, senderUserName string,
 		expiresAt int, senderEmail string, recipientEmail string) (int, error)
 	Get(id int) (SharedFile, error)
 	Latest() ([]SharedFile, error)
@@ -16,6 +16,7 @@ type SharedFileModelInterface interface {
 type SharedFile struct {
 	Id             int
 	DocName        string
+	SafeName       string
 	RecipientName  string
 	SenderName     string
 	CreatedAt      time.Time
@@ -28,13 +29,13 @@ type SharedFileModel struct {
 	DB *sql.DB
 }
 
-func (m *SharedFileModel) Insert(docName string, recipientUserName string, senderUserName string,
+func (m *SharedFileModel) Insert(docName string, safeName string, recipientUserName string, senderUserName string,
 	expiresAt int, senderEmail string, recipientEmail string) (int, error) {
-	stmt := `INSERT INTO files (DocName, RecipientName, SenderName, CreatedAt, Expires, SenderEmail, 
-                   RecipientEmail) VALUES (?, ?, ?, UTC_TIMESTAMP(), 
+	stmt := `INSERT INTO files (DocName, safeName, RecipientName, SenderName, CreatedAt, Expires, SenderEmail, 
+                   RecipientEmail) VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), 
                                                         DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY), ?, ?)`
 
-	result, err := m.DB.Exec(stmt, docName, recipientUserName, senderUserName, expiresAt, senderEmail,
+	result, err := m.DB.Exec(stmt, docName, safeName, recipientUserName, senderUserName, expiresAt, senderEmail,
 		recipientEmail)
 	if err != nil {
 		return 0, err
@@ -49,12 +50,12 @@ func (m *SharedFileModel) Insert(docName string, recipientUserName string, sende
 }
 
 func (m *SharedFileModel) Get(id int) (SharedFile, error) {
-	stmt := `SELECT Id, DocName, RecipientName, SenderName, CreatedAt, 
+	stmt := `SELECT Id, DocName, safeName, RecipientName, SenderName, CreatedAt, 
        SenderEmail, RecipientEmail FROM files WHERE Expires > UTC_TIMESTAMP() AND id = ?`
 
 	var s SharedFile
 
-	err := m.DB.QueryRow(stmt, id).Scan(&s.Id, &s.DocName, &s.RecipientName, &s.SenderName, &s.CreatedAt,
+	err := m.DB.QueryRow(stmt, id).Scan(&s.Id, &s.DocName, &s.SafeName, &s.RecipientName, &s.SenderName, &s.CreatedAt,
 		&s.SenderEmail, &s.RecipientEmail)
 
 	if err != nil {
@@ -74,7 +75,7 @@ func (m *SharedFileModel) Get(id int) (SharedFile, error) {
 
 func (m *SharedFileModel) Latest() ([]SharedFile, error) {
 
-	stmt := `SELECT Id, DocName, RecipientName, SenderName, CreatedAt, 
+	stmt := `SELECT Id, DocName, SafeName, RecipientName, SenderName, CreatedAt, 
        SenderEmail, RecipientEmail FROM files WHERE Expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
 
 	rows, err := m.DB.Query(stmt)
@@ -88,7 +89,7 @@ func (m *SharedFileModel) Latest() ([]SharedFile, error) {
 
 	for rows.Next() {
 		var s SharedFile
-		err = rows.Scan(&s.Id, &s.DocName, &s.RecipientName, &s.SenderName, &s.CreatedAt,
+		err = rows.Scan(&s.Id, &s.DocName, &s.SafeName, &s.RecipientName, &s.SenderName, &s.CreatedAt,
 			&s.SenderEmail, &s.RecipientEmail)
 		if err != nil {
 			return nil, err

@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
-
 	//Internal
 	"fileshare/internal/models"
 	"fileshare/internal/validator"
@@ -102,12 +100,8 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, http.StatusUnsupportedMediaType, "create.tmpl", data)
 	}
 
-	// Replace all special characters with underscores.
-	fHeader.Filename = strings.ReplaceAll(fHeader.Filename, "/", "_")
-	fHeader.Filename = strings.ReplaceAll(fHeader.Filename, ".", "_")
-
-	// Remove all spaces.
-	fHeader.Filename = strings.ReplaceAll(fHeader.Filename, " ", "")
+	OrginalFilename := fHeader.Filename
+	fHeader.Filename = app.SafeFileName(15)
 
 	defer file.Close()
 
@@ -141,7 +135,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		io.Copy(f, file)
 	}
 
-	id, err := app.sharedFile.Insert(fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
+	id, err := app.sharedFile.Insert(OrginalFilename, fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
 		form.SenderEmail, form.RecipientEmail)
 
 	if err != nil {
@@ -151,7 +145,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	//Let's send some mail
 	err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
-		form.SenderEmail, fHeader.Filename)
+		form.SenderEmail, OrginalFilename)
 
 	if err != nil {
 		app.serverError(w, r, err)
