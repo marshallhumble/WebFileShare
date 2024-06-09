@@ -13,5 +13,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/google/safeopen v0.0.0-20240125081138-66b54d5181c6 // indirect
 	github.com/justinas/nosurf v1.1.1 // indirect
+	golang.org/x/sys v0.20.0 // indirect
 )

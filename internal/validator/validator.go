@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 )
 
+// Using this regex from OWASP instead of validator package
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // Define a new Validator struct which contains a map of validation error messages
@@ -76,6 +77,7 @@ func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
 
+// Rename files before storage on disk
 func SafeFileName(length int) string {
 
 	var (

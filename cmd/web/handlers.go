@@ -3,13 +3,15 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
+
 	//Internal
 	"fileshare/internal/models"
 	"fileshare/internal/validator"
+
+	//External
+	"github.com/google/safeopen"
 )
 
 type fileCreateForm struct {
@@ -125,14 +127,10 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(form.FieldErrors)
-
 	//If there are no errors let's copy the file
 	if fHeader.Size > 0 {
-		f, _ := os.OpenFile("./uploads/"+fHeader.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-
+		f, _ := safeopen.CreateAt("./uploads/", fHeader.Filename)
 		defer f.Close()
-		io.Copy(f, file)
 	}
 
 	id, err := app.sharedFile.Insert(OrginalFilename, fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
