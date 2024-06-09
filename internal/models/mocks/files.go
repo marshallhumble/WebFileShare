@@ -19,7 +19,7 @@ var mockFile = models.SharedFile{
 
 type SharedFileModel struct{}
 
-func (m *SharedFileModel) Insert(docName string, recipientUserName string, senderUserName string,
+func (m *SharedFileModel) Insert(docName string, safeName string, recipientUserName string, senderUserName string,
 	expiresAt int, senderEmail string, recipientEmail string) (int, error) {
 	return 2, nil
 }

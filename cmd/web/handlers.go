@@ -3,14 +3,15 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
 
 	//Internal
 	"fileshare/internal/models"
 	"fileshare/internal/validator"
+
+	//External
+	"github.com/google/safeopen"
 )
 
 type fileCreateForm struct {
@@ -101,6 +102,9 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, http.StatusUnsupportedMediaType, "create.tmpl", data)
 	}
 
+	OrginalFilename := fHeader.Filename
+	fHeader.Filename = validator.SafeFileName(20)
+
 	defer file.Close()
 
 	form.CheckField(validator.NotBlank(form.RecipientUserName),
@@ -123,22 +127,26 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(form.FieldErrors)
-
 	//If there are no errors let's copy the file
 	if fHeader.Size > 0 {
-		f, _ := os.OpenFile("./uploads/"+fHeader.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-
+		f, _ := safeopen.CreateAt("./uploads/", fHeader.Filename)
 		defer f.Close()
-		io.Copy(f, file)
 	}
 
-	id, err := app.sharedFile.Insert(fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
+	id, err := app.sharedFile.Insert(OrginalFilename, fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
 		form.SenderEmail, form.RecipientEmail)
 
 	if err != nil {
 		app.serverError(w, r, err)
 		return
+	}
+
+	//Let's send some mail
+	err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
+		form.SenderEmail, OrginalFilename)
+
+	if err != nil {
+		app.serverError(w, r, err)
 	}
 
 	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
