@@ -131,6 +131,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	if fHeader.Size > 0 {
 		f, _ := safeopen.CreateAt("./uploads/", fHeader.Filename)
 		defer f.Close()
+		//io.Copy(f, file)
 	}
 
 	id, err := app.sharedFile.Insert(OrginalFilename, fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
