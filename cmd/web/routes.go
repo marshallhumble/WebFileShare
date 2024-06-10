@@ -26,8 +26,11 @@ func (app *application) routes() http.Handler {
 	//dynamic middleware route
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
-	//Login protected route
+	//Make Alice Login protected route
 	protected := dynamic.Append(app.requireAuthentication)
+
+	//Make Alice Admin Only route
+	admin := dynamic.Append(app.requireAdmin)
 
 	//All other routes
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
@@ -36,6 +39,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /files/view/{id}", dynamic.ThenFunc(app.fileView))
 	mux.Handle("GET /files/create", protected.ThenFunc(app.fileCreate))
 	mux.Handle("POST /files/create", protected.ThenFunc(app.fileCreatePost))
+	mux.Handle("GET /users/", admin.ThenFunc(app.getAllUsers))
 
 	//User Sign-up/Login/Logout
 	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))

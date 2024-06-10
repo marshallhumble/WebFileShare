@@ -1,0 +1,20 @@
+{{define "title"}}Users{{end}}
+
+{{define "main"}}
+    <!-- Include the CSRF token -->
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    {{range .Users}}
+    <div class='users'>
+        <div class='metadata'>
+            <strong>{{.Name}}</strong>
+            <span>{{.Email}}</span>
+        </div>
+        <div class='metadata'>
+            <time>Name: {{.Name}}</time>
+            <time>Email: {{.Email}}</time>
+            <time>Created: {{humanDate .Created}}</time>
+            <time>Admin: {{.Admin }}</time>
+        </div>
+    </div>
+    {{end}}
+{{end}}

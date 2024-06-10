@@ -49,7 +49,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data.SharedFiles = sharedFiles
 
 	// Use the new render helper.
-	app.render(w, r, http.StatusOK, "home.tmpl", data)
+	app.render(w, r, http.StatusOK, "home.gohtml", data)
 }
 
 func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +73,7 @@ func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
 	data.SharedFile = sharedF
 
 	// Use the new render helper.
-	app.render(w, r, http.StatusOK, "view.tmpl", data)
+	app.render(w, r, http.StatusOK, "view.gohtml", data)
 }
 
 func (app *application) fileCreate(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func (app *application) fileCreate(w http.ResponseWriter, r *http.Request) {
 	data.Form = fileCreateForm{
 		Expires: 365,
 	}
-	app.render(w, r, http.StatusOK, "create.tmpl", data)
+	app.render(w, r, http.StatusOK, "create.gohtml", data)
 }
 
 func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +99,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.logger.Error("Handler Error: ", err)
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnsupportedMediaType, "create.tmpl", data)
+		app.render(w, r, http.StatusUnsupportedMediaType, "create.gohtml", data)
 	}
 
 	OrginalFilename := fHeader.Filename
@@ -123,7 +123,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "create.gohtml", data)
 		return
 	}
 
@@ -158,7 +158,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userSignupForm{}
-	app.render(w, r, http.StatusOK, "signup.tmpl", data)
+	app.render(w, r, http.StatusOK, "signup.gohtml", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
@@ -181,7 +181,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "signup.gohtml", data)
 		return
 	}
 
@@ -194,7 +194,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			app.render(w, r, http.StatusUnprocessableEntity, "signup.gohtml", data)
 		} else {
 			app.serverError(w, r, err)
 		}
@@ -213,7 +213,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userLoginForm{}
-	app.render(w, r, http.StatusOK, "login.tmpl", data)
+	app.render(w, r, http.StatusOK, "login.gohtml", data)
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -236,7 +236,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "login.gohtml", data)
 		return
 	}
 
@@ -249,7 +249,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+			app.render(w, r, http.StatusUnprocessableEntity, "login.gohtml", data)
 		} else {
 			app.serverError(w, r, err)
 		}
@@ -297,4 +297,20 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
+}
+
+func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := app.users.GetAllUsers()
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.Users = users
+
+	// Use the new render helper.
+	app.render(w, r, http.StatusOK, "users.gohtml", data)
+
 }

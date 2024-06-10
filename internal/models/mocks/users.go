@@ -4,7 +4,8 @@ import (
 	"fileshare/internal/models"
 )
 
-type UserModel struct{}
+type UserModel struct {
+}
 
 func (m *UserModel) Insert(name, email, password string) error {
 	switch email {
@@ -23,11 +24,19 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return 0, models.ErrInvalidCredentials
 }
 
-func (m *UserModel) Exists(id int) (bool, error) {
+func (m *UserModel) Exists(id int) (bool, bool, error) {
 	switch id {
 	case 1:
-		return true, nil
+		return true, false, nil
 	default:
-		return false, nil
+		return false, false, nil
 	}
+}
+
+func (m *UserModel) AdminPageInsert(name, email, password string, admin bool) error {
+	return nil
+}
+
+func (m *UserModel) GetAllUsers() ([]models.User, error) {
+	return nil, nil
 }

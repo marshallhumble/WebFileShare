@@ -66,6 +66,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		CurrentYear:     time.Now().Year(),
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		IsAdmin:         app.isAdmin(r),
 		CSRFToken:       nosurf.Token(r),
 	}
 }
@@ -106,4 +107,13 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
+}
+
+func (app *application) isAdmin(r *http.Request) bool {
+	isAdmin, ok := r.Context().Value(isAdminContextKey).(bool)
+	if !ok {
+		return false
+	}
+
+	return isAdmin
 }
