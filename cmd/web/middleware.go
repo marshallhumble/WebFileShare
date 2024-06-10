@@ -77,6 +77,26 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
+func (app *application) requireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If the user is not authenticated, redirect them to the login page and
+		// return from the middleware chain so that no subsequent handlers in
+		// the chain are executed.
+		if !app.isAdmin(r) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+
+		// Otherwise set the "Cache-Control: no-store" header so that pages
+		// require authentication are not stored in the users browser cache (or
+		// other intermediary cache).
+		w.Header().Add("Cache-Control", "no-store")
+
+		// And call the next handler in the chain.
+		next.ServeHTTP(w, r)
+	})
+}
+
 func noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetBaseCookie(http.Cookie{
@@ -102,7 +122,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		// Otherwise, we check to see if a user with that ID exists in our
 		// database.
-		exists, err := app.users.Exists(id)
+		exists, admin, err := app.users.Exists(id)
 		if err != nil {
 			app.serverError(w, r, err)
 			return
@@ -114,6 +134,15 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		// value of true in the request context) and assign it to r.
 		if exists {
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
+		//Set the admin context key
+		if admin {
+			ctx := context.WithValue(r.Context(), isAdminContextKey, true)
+			r = r.WithContext(ctx)
+		} else {
+			ctx := context.WithValue(r.Context(), isAdminContextKey, false)
 			r = r.WithContext(ctx)
 		}
 

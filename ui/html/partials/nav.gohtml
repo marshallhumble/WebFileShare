@@ -7,6 +7,9 @@
         {{if .IsAuthenticated}}
             <a href='/files/create'>Upload file</a>
         {{end}}
+        {{ if .IsAdmin}}
+            <a href="/users/">Users</a>
+        {{end}}
     </div>
     <div>
         <!-- Toggle the links based on authentication status -->
