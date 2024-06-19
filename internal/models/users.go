@@ -17,6 +17,8 @@ type UserModelInterface interface {
 	Exists(id int) (bool, bool, error)
 	AdminPageInsert(name, email, password string, admin bool) error
 	GetAllUsers() ([]User, error)
+	Get(id int) (User, error)
+	//UpdateUser(id int) (User, error)
 }
 
 type User struct {
@@ -183,3 +185,31 @@ func (m *UserModel) GetAllUsers() ([]User, error) {
 
 	return users, nil
 }
+
+func (m *UserModel) Get(id int) (User, error) {
+	stmt := `SELECT id, name, email, created, admin FROM users WHERE id = ?`
+
+	var u User
+
+	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created, &u.Admin)
+
+	if err != nil {
+		// If the query returns no rows, then row.Scan() will return a
+		// sql.ErrNoRows error. We use the errors.Is() function check for that
+		// error specifically, and return our own ErrNoRecord error
+		// instead.
+		if errors.Is(err, sql.ErrNoRows) {
+			return User{}, ErrNoRecord
+		} else {
+			return User{}, err
+		}
+	}
+
+	return u, nil
+}
+
+/*func (m *UserModel) UpdateUser(id int) (User, error) {
+	var usr User
+
+	return usr, nil
+} */

@@ -314,3 +314,29 @@ func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "users.gohtml", data)
 
 }
+
+func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	user, err := app.users.Get(id)
+	fmt.Println(user)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.User = user
+
+	app.render(w, r, http.StatusOK, "user_edit.gohtml", data)
+
+}
+
+/* func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
+
+} */

@@ -1,0 +1,21 @@
+{{define "title"}}User: {{.User.Name}}{{end}}
+
+{{define "main"}}
+    <!-- Include the CSRF token -->
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    {{with .User}}
+        <div class='sharedfile'>
+            <div class='metadata'>
+                <span>{{.Name}}</span>
+            </div>
+            <br>
+            <br>
+            <div class='metadata'>
+                <time>Name: {{.Name}}</time> <br>
+                <time>Email: {{.Email}}</time> <br>
+                <time>Created: <td>{{humanDate .Created}}</time> <br>
+                <time>Doc Name: {{.Admin}}  </time> <br>
+            </div>
+        </div>
+    {{end}}
+{{end}}
