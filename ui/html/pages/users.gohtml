@@ -3,18 +3,25 @@
 {{define "main"}}
     <!-- Include the CSRF token -->
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
-    {{range .Users}}
-    <div class='users'>
-        <div class='metadata'>
-            <strong>{{.Name}}</strong>
-            <span>{{.Email}}</span>
-        </div>
-        <div class='metadata'>
-            <time>Name: {{.Name}}</time>
-            <time>Email: {{.Email}}</time>
-            <time>Created: {{humanDate .Created}}</time>
-            <time>Admin: {{.Admin }}</time>
-        </div>
-    </div>
+    <h2>All Users</h2>
+        {{if .Users}}
+            <table>
+                <tr>
+                    <th>Name: </th>
+                    <th>Email: </th>
+                    <th>Created: </th>
+                    <th>Admin: </th>
+                </tr>
+                {{range .Users}}
+                    <tr>
+                        <td><a href='/user/edit/{{.ID}}'>{{.Name}}</a></td>
+                        <td>{{.Email}}</td>
+                        <td>Created: {{humanDate .Created}}</td>
+                        <td>{{.Admin}}</td>
+                    </tr>
+                {{end}}
+            </table>
+    {{else}}
+        <p>No users found</p>
     {{end}}
 {{end}}

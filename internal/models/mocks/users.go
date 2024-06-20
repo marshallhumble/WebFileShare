@@ -40,3 +40,12 @@ func (m *UserModel) AdminPageInsert(name, email, password string, admin bool) er
 func (m *UserModel) GetAllUsers() ([]models.User, error) {
 	return nil, nil
 }
+
+func (m *UserModel) Get(id int) (models.User, error) {
+	var u models.User
+	return u, nil
+}
+
+func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool) (models.User, error) {
+	return models.User{}, nil
+}

@@ -32,14 +32,18 @@ func (app *application) routes() http.Handler {
 	//Make Alice Admin Only route
 	admin := dynamic.Append(app.requireAdmin)
 
-	//All other routes
+	//Default route
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 
-	//Protected Routes - Require Login
+	//Protected File Create/View Routes
 	mux.Handle("GET /files/view/{id}", dynamic.ThenFunc(app.fileView))
 	mux.Handle("GET /files/create", protected.ThenFunc(app.fileCreate))
 	mux.Handle("POST /files/create", protected.ThenFunc(app.fileCreatePost))
+
+	//Protected User Routes
 	mux.Handle("GET /users/", admin.ThenFunc(app.getAllUsers))
+	mux.Handle("GET /user/edit/{id}", protected.ThenFunc(app.editUser))
+	mux.Handle("POST /user/edit/{id}", protected.ThenFunc(app.editUserPost))
 
 	//User Sign-up/Login/Logout
 	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))
