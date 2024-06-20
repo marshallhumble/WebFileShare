@@ -25,9 +25,11 @@ type fileCreateForm struct {
 }
 
 type userSignupForm struct {
+	Id                  int    `form:"-"`
 	Name                string `form:"name"`
 	Email               string `form:"email"`
 	Password            string `form:"password"`
+	Admin               bool   `form:"-"`
 	validator.Validator `form:"-"`
 }
 
@@ -337,6 +339,41 @@ func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/* func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
+func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
+	var form userSignupForm
 
-} */
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	/*
+		form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
+		form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+		form.CheckField(validator.Matches(form.Email, validator.EmailRX),
+			"email", "This field must be a valid email address")
+		form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+		form.CheckField(validator.MinChars(form.Password, 8), "password",
+			"This field must be at least 8 characters long")
+
+		if !form.Valid() {
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, r, http.StatusUnprocessableEntity, "user_edit.gohtml", data)
+			return
+		}
+	*/
+
+	user, err := app.users.UpdateUser(id, form.Name, form.Email, form.Password, form.Admin)
+
+	data := app.newTemplateData(r)
+	data.User = user
+
+	app.render(w, r, http.StatusOK, "user_edit.gohtml", data)
+}

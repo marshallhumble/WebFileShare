@@ -18,7 +18,7 @@ type UserModelInterface interface {
 	AdminPageInsert(name, email, password string, admin bool) error
 	GetAllUsers() ([]User, error)
 	Get(id int) (User, error)
-	//UpdateUser(id int) (User, error)
+	UpdateUser(id int, name, email, password string, admin bool) (User, error)
 }
 
 type User struct {
@@ -37,7 +37,7 @@ type UserModel struct {
 // Insert The usual user page sign-up no admins can be created this way explicitly declaring it false
 func (m *UserModel) Insert(name, email, password string) error {
 	// Create a bcrypt hash of the plain-text password.
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (m *UserModel) AdminPageInsert(name, email, password string, admin bool) er
 		// If this returns an error, we use the errors.As() function to check
 		// whether the error has the type *mysql.MySQLError. If it does, the
 		// error will be assigned to the mySQLError variable. We can then check
-		// whether or not the error relates to our users_uc_email key by
+		// if the error relates to our users_uc_email key by
 		// checking if the error code equals 1062 and the contents of the error
 		// message string. If it does, we return an ErrDuplicateEmail error.
 		var mySQLError *mysql.MySQLError
@@ -208,8 +208,38 @@ func (m *UserModel) Get(id int) (User, error) {
 	return u, nil
 }
 
-/*func (m *UserModel) UpdateUser(id int) (User, error) {
+func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool) (User, error) {
 	var usr User
 
+	HashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return usr, err
+	}
+
+	stmt := `UPDATE users SET name = ?, email = ?, hashed_password = ?, admin = ? WHERE id = ?`
+	_, err = m.DB.Exec(stmt, name, email, HashedPassword, admin, id)
+	if err != nil {
+		// If this returns an error, we use the errors.As() function to check
+		// whether the error has the type *mysql.MySQLError. If it does, the
+		// error will be assigned to the mySQLError variable. We can then check
+		// if the error relates to our users_uc_email key by
+		// checking if the error code equals 1062 and the contents of the error
+		// message string. If it does, we return an ErrDuplicateEmail error.
+		var mySQLError *mysql.MySQLError
+		if errors.As(err, &mySQLError) {
+			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "users_uc_email") {
+				return usr, ErrDuplicateEmail
+			}
+		}
+		return usr, err
+	}
+
+	usr.Name = name
+	usr.Email = email
+
 	return usr, nil
-} */
+}
+
+func hashPassword(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), 14)
+}

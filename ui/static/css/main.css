@@ -2,7 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-family: "Proxima Nova", monospace;
 }
 
@@ -52,6 +52,7 @@ main {
 .topnav a.active {
     background-color: #04AA6D;
     color: white;
+    font-size: 12px;
 }
 
 
