@@ -1,5 +1,8 @@
 # WebFileShare
 
+![codeql badge](https://github.com/marshallhumble/WebFileShare/actions/workflows/codeql.yml/badge.svg?branch=main)
+![go build badge](https://github.com/marshallhumble/WebFileShare/actions/workflows/go.yml/badge.svg?branch=main)
+
 ### Purpose 
 
 This project came about from a need at work. We wanted to find an easy and secure way to share files with other people outside our organization. 
