@@ -12,8 +12,8 @@ html, body {
 
 body {
     line-height: 1.5;
-    background-color: #F1F3F6;
-    color: #34495E;
+    background-color: #fdfdfd;
+    color: #2e2e2e;
     overflow-y: scroll;
 }
 
@@ -62,7 +62,7 @@ nav {
     padding-bottom: 15px;
     background: #F7F9FA;
     height: 60px;
-    color: #6A6C6F;
+    color: #e1e5ec;
 }
 
 nav a {
