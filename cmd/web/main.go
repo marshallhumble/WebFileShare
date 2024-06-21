@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"crypto/tls"
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
@@ -31,6 +33,9 @@ type application struct {
 	sessionManager *scs.SessionManager
 	config         models.ServerConfigInterface
 }
+
+// MaxUploadSize defines the largest file that can be uploaded in the system
+const MaxUploadSize = 2024 * 2024
 
 func main() {
 
@@ -81,6 +86,23 @@ func main() {
 		config:         &models.ServerConfigModel{DB: db},
 	}
 
+	if !configExists(db) {
+		if err := sqlSetup(db); err != nil {
+			logger.Error(err.Error())
+		}
+
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Println("Create new password for admin user: ")
+		password, err := reader.ReadString('\n')
+		if err != nil {
+			logger.Error(err.Error())
+		}
+
+		if err := app.users.AdminPageInsert("admin", "email@locahost", password, true); err != nil {
+			logger.Error(err.Error())
+		}
+	}
+
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 		CipherSuites: []uint16{
@@ -112,14 +134,14 @@ func main() {
 	os.Exit(1)
 }
 
+// openDB open the db and check if the tables exist, if not run first setup.
 func openDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.Ping()
-	if err != nil {
+	if err = db.Ping(); err != nil {
 		db.Close()
 		return nil, err
 	}
@@ -127,7 +149,8 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func readFileEnvs(fileName string) (dbPass string, dbUser string, dbName string, err error) {
+// readFileEnvs pull the database details from the .ENV file that we are using for Docker init
+func readFileEnvs(fileName string) (dbPass, dbUser, dbName string, err error) {
 
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -148,7 +171,11 @@ func readFileEnvs(fileName string) (dbPass string, dbUser string, dbName string,
 	return dbPass, dbUser, dbName, nil
 }
 
-func getVariable(text string, key string) string {
+// getVariable get the variables from the ENV file, right now we are assuming they look like this:
+// DB_USERNAME=username
+// DB_PASSWORD=password
+// DB_DATABASE=db_name
+func getVariable(text, key string) string {
 
 	lines := strings.Split(text, "\n")
 
@@ -163,4 +190,50 @@ func getVariable(text string, key string) string {
 
 	}
 	return ""
+}
+
+// configExists check to see if there are values in the config DB
+func configExists(db *sql.DB) bool {
+	stmt := `SELECT * FROM config LIMIT 1`
+	row := db.QueryRow(stmt)
+
+	if err := row.Err(); err != nil {
+		return false
+	}
+	return true
+}
+
+// sqlSetup run SQL queries to create tables for our application
+func sqlSetup(db *sql.DB) error {
+	FilesStmt := `CREATE TABLE IF NOT EXISTS files (id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+DocName TEXT NOT NULL, safeName TEXT NOT NULL, RecipientName TEXT NOT NULL, SenderName TEXT NOT NULL, 
+CreatedAt DATETIME NOT NULL, Expires DATETIME NOT NULL, SenderEmail TEXT NOT NULL, RecipientEmail TEXT NOT NULL)`
+
+	SessionsStmt := `CREATE TABLE IF NOT EXISTS sessions (token CHAR NOT NULL, 
+data blob NOT NULL, expiry timestamp NOT NULL )`
+
+	ConfigStmt := `CREATE TABLE IF NOT EXISTS config (mail_server TINYTEXT NOT NULL, mail_username TINYTEXT NOT NULL,
+mail_password TINYTEXT NOT NULL, mail_port TINYTEXT NOT NULL)`
+
+	UsersStmt := `CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, hashed_password CHAR(60) NOT NULL, created DATETIME NOT NULL)`
+
+	_, err := db.Exec(FilesStmt)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(SessionsStmt)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(ConfigStmt)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(UsersStmt)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

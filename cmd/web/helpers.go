@@ -13,8 +13,6 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-const MaxUploadSize = 2024 * 2024
-
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
 	var (
 		method = r.Method

@@ -127,7 +127,7 @@ func (m *UserModel) Exists(id int) (bool, bool, error) {
 
 func (m *UserModel) AdminPageInsert(name, email, password string, admin bool) error {
 	// Create a bcrypt hash of the plain-text password.
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func (m *UserModel) Get(id int) (User, error) {
 func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool) (User, error) {
 	var usr User
 
-	HashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	HashedPassword, err := hashPassword(password)
 	if err != nil {
 		return usr, err
 	}

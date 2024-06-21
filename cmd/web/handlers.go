@@ -90,8 +90,7 @@ func (app *application) fileCreate(w http.ResponseWriter, r *http.Request) {
 func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	var form fileCreateForm
 
-	err := app.decodePostForm(r, &form)
-	if err != nil {
+	if err := app.decodePostForm(r, &form); err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -166,8 +165,7 @@ func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	var form userSignupForm
 
-	err := app.decodePostForm(r, &form)
-	if err != nil {
+	if err := app.decodePostForm(r, &form); err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -189,7 +187,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already
 	// exists then add an error message to the form and re-display it.
-	err = app.users.Insert(form.Name, form.Email, form.Password)
+	err := app.users.Insert(form.Name, form.Email, form.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in use")
@@ -222,8 +220,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Decode the form data into the userLoginForm struct.
 	var form userLoginForm
 
-	err := app.decodePostForm(r, &form)
-	if err != nil {
+	if err := app.decodePostForm(r, &form); err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -262,8 +259,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	// ID. It's good practice to generate a new session ID when the
 	// authentication state or privilege levels changes for the user (e.g. login
 	// and logout operations). -- OWASP Session Fixation Mitigation
-	err = app.sessionManager.RenewToken(r.Context())
-	if err != nil {
+	if err = app.sessionManager.RenewToken(r.Context()); err != nil {
 		app.serverError(w, r, err)
 		return
 	}
@@ -279,8 +275,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	// Use the RenewToken() method on the current session to change the session
 	// ID again.
-	err := app.sessionManager.RenewToken(r.Context())
-	if err != nil {
+	if err := app.sessionManager.RenewToken(r.Context()); err != nil {
 		app.serverError(w, r, err)
 		return
 	}
@@ -348,8 +343,7 @@ func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.decodePostForm(r, &form)
-	if err != nil {
+	if err = app.decodePostForm(r, &form); err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
