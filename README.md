@@ -34,7 +34,7 @@ go run /usr/local/Cellar/go/<version>/libexec/src/crypto/tls/generate_cert.go --
 ```
 
 #### Setup Env File
-Fill out the .env file (template provided) with sql database and password, these will be used by Docker and the web app for the MySQL Db. 
+Fill out the .env file (template provided, but must be named .env for Docker and application to see it automatically) with sql database and password, these will be used by Docker and the web app for the MySQL Db. 
 
 #### Setup Docker
 
