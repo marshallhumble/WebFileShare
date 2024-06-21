@@ -13,6 +13,6 @@ This is current a work in progress, at the moment I have it setup so that it can
 
 ### Next Steps
 
-1. Add a startup script that checks for first run and sets variables and SQL tables
-2. Create a unique link for downloading of files
-3. Add in admin for all files
+1. Create a unique link for downloading of files and clean up homepage
+2. Add in admin for all files
+3. Finish/Add more tests on new features
