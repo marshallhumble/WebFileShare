@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"crypto/tls"
 	"database/sql"
 	"flag"
-	"fmt"
 	"html/template"
 	"io"
 	"log/slog"
@@ -84,23 +82,6 @@ func main() {
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 		config:         &models.ServerConfigModel{DB: db},
-	}
-
-	if !configExists(db) {
-		if err := sqlSetup(db); err != nil {
-			logger.Error(err.Error())
-		}
-
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Println("Create new password for admin user: ")
-		password, err := reader.ReadString('\n')
-		if err != nil {
-			logger.Error(err.Error())
-		}
-
-		if err := app.users.AdminPageInsert("admin", "email@locahost", password, true); err != nil {
-			logger.Error(err.Error())
-		}
 	}
 
 	tlsConfig := &tls.Config{
@@ -190,50 +171,4 @@ func getVariable(text, key string) string {
 
 	}
 	return ""
-}
-
-// configExists check to see if there are values in the config DB
-func configExists(db *sql.DB) bool {
-	stmt := `SELECT * FROM config LIMIT 1`
-	row := db.QueryRow(stmt)
-
-	if err := row.Err(); err != nil {
-		return false
-	}
-	return true
-}
-
-// sqlSetup run SQL queries to create tables for our application
-func sqlSetup(db *sql.DB) error {
-	FilesStmt := `CREATE TABLE IF NOT EXISTS files (id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-DocName TEXT NOT NULL, safeName TEXT NOT NULL, RecipientName TEXT NOT NULL, SenderName TEXT NOT NULL, 
-CreatedAt DATETIME NOT NULL, Expires DATETIME NOT NULL, SenderEmail TEXT NOT NULL, RecipientEmail TEXT NOT NULL)`
-
-	SessionsStmt := `CREATE TABLE IF NOT EXISTS sessions (token CHAR NOT NULL, 
-data blob NOT NULL, expiry timestamp NOT NULL )`
-
-	ConfigStmt := `CREATE TABLE IF NOT EXISTS config (mail_server TINYTEXT NOT NULL, mail_username TINYTEXT NOT NULL,
-mail_password TINYTEXT NOT NULL, mail_port TINYTEXT NOT NULL)`
-
-	UsersStmt := `CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, hashed_password CHAR(60) NOT NULL, created DATETIME NOT NULL)`
-
-	_, err := db.Exec(FilesStmt)
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec(SessionsStmt)
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec(ConfigStmt)
-	if err != nil {
-		return err
-	}
-	_, err = db.Exec(UsersStmt)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

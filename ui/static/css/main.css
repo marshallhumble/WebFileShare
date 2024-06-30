@@ -63,6 +63,9 @@ nav {
     background: #F7F9FA;
     height: 60px;
     color: #e1e5ec;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 nav a {
