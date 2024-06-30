@@ -103,9 +103,6 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, http.StatusUnsupportedMediaType, "create.gohtml", data)
 	}
 
-	OrginalFilename := fHeader.Filename
-	fHeader.Filename = validator.SafeFileName(20)
-
 	defer file.Close()
 
 	form.CheckField(validator.NotBlank(form.RecipientUserName),
@@ -135,8 +132,8 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		//io.Copy(f, file)
 	}
 
-	id, err := app.sharedFile.Insert(OrginalFilename, fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.Expires,
-		form.SenderEmail, form.RecipientEmail)
+	id, err := app.sharedFile.Insert(fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.SenderEmail,
+		form.RecipientEmail, form.Expires)
 
 	if err != nil {
 		app.serverError(w, r, err)
@@ -144,10 +141,8 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Let's send some mail
-	err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
-		form.SenderEmail, OrginalFilename)
-
-	if err != nil {
+	if err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
+		form.SenderEmail, fHeader.Filename); err != nil {
 		app.serverError(w, r, err)
 	}
 
@@ -187,8 +182,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already
 	// exists then add an error message to the form and re-display it.
-	err := app.users.Insert(form.Name, form.Email, form.Password)
-	if err != nil {
+	if err := app.users.Insert(form.Name, form.Email, form.Password); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in use")
 
