@@ -140,14 +140,14 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.logger.Info("File uploaded: ", id)
+	app.logger.Info("File uploaded", "id: ", id)
 
 	//Let's send some mail
 	if err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
 		form.SenderEmail, fHeader.Filename, password); err != nil {
 		app.serverError(w, r, err)
 	}
-	app.logger.Info("Email sent to: ", form.RecipientEmail)
+	app.logger.Info("Email sent! ", "email: ", form.RecipientEmail)
 	// Insert(name, email, password string, admin, guest bool)
 	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password, false, true); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
@@ -162,7 +162,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.logger.Info("User created: ", form.RecipientEmail)
+	app.logger.Info("User created! ", "user: ", form.RecipientEmail)
 
 	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
 
