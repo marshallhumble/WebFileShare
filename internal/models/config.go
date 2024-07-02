@@ -9,7 +9,7 @@ import (
 
 type ServerConfigInterface interface {
 	GetConfig() (ServerConfig, error)
-	SendMail(rName, sName, rEmail, sEmail, fName string) error
+	SendMail(rName, sName, rEmail, sEmail, fName, password string) error
 }
 
 type ServerConfig struct {
@@ -17,6 +17,7 @@ type ServerConfig struct {
 	mailUsername string
 	mailPassword string
 	mailPort     int
+	serverName   string
 }
 
 type ServerConfigModel struct {
@@ -24,11 +25,11 @@ type ServerConfigModel struct {
 }
 
 func (m *ServerConfigModel) GetConfig() (ServerConfig, error) {
-	stmt := `SELECT mail_server, mail_username, mail_password, mail_port FROM config`
+	stmt := `SELECT mail_server, mail_username, mail_password, mail_port, server_name FROM config`
 
 	var c ServerConfig
 
-	err := m.DB.QueryRow(stmt).Scan(&c.mailServer, &c.mailUsername, &c.mailPassword, &c.mailPort)
+	err := m.DB.QueryRow(stmt).Scan(&c.mailServer, &c.mailUsername, &c.mailPassword, &c.mailPort, &c.serverName)
 
 	if err != nil {
 		// If the query returns no rows, then row.Scan() will return a
@@ -45,7 +46,7 @@ func (m *ServerConfigModel) GetConfig() (ServerConfig, error) {
 	return c, nil
 }
 
-func (m *ServerConfigModel) SendMail(rName, sName, rEmail, sEmail, fName string) error {
+func (m *ServerConfigModel) SendMail(rName, sName, rEmail, sEmail, fName, password string) error {
 
 	s, err := m.GetConfig()
 	if err != nil {
@@ -58,12 +59,22 @@ func (m *ServerConfigModel) SendMail(rName, sName, rEmail, sEmail, fName string)
 
 	to := []string{rEmail}
 
-	msg := []byte("To: " + rEmail + "\r\n" +
+	MsgFile := []byte("To: " + rEmail + "\r\n" +
 		"Subject: " + sName + " has sent you" + fName + "\r\n" +
 		"\r\n" +
-		rName + " go to webapp for you file!\r\n")
+		rName + " go to webapp https://" + s.serverName + " for your file!\r\n")
 
-	err = smtp.SendMail(server, auth, sEmail, to, msg)
+	err = smtp.SendMail(server, auth, sEmail, to, MsgFile)
+	if err != nil {
+		return err
+	}
+
+	MsgPassword := []byte("To: " + rEmail + "\r\n" +
+		"Subject: " + sName + " has sent you" + fName + "\r\n" +
+		"\r\n" +
+		rName + " here is your password " + password + "\r\n")
+
+	err = smtp.SendMail(server, auth, sEmail, to, MsgPassword)
 	if err != nil {
 		return err
 	}

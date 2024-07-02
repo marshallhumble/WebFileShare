@@ -7,7 +7,8 @@ import (
 )
 
 type SharedFileModelInterface interface {
-	Insert(docName, recipientUserName, senderUserName, senderEmail, recipientEmail string, expiresAt int) (int, error)
+	Insert(docName, senderUserName, senderEmail, recipientUserName, recipientEmail,
+		password string, expiresAt int) (int, error)
 	Get(id int) (SharedFile, error)
 	Latest() ([]SharedFile, error)
 }
@@ -15,25 +16,27 @@ type SharedFileModelInterface interface {
 type SharedFile struct {
 	Id             int
 	DocName        string
-	RecipientName  string
 	SenderName     string
+	SenderEmail    string
+	RecipientName  string
+	RecipientEmail string
+	Password       string
 	CreatedAt      time.Time
 	Expires        time.Time
-	SenderEmail    string
-	RecipientEmail string
 }
 
 type SharedFileModel struct {
 	DB *sql.DB
 }
 
-func (m *SharedFileModel) Insert(docName, recipientUserName, senderUserName, senderEmail, recipientEmail string,
-	expiresAt int) (int, error) {
-	stmt := `INSERT INTO files (DocName, RecipientName, SenderName, Expires, CreatedAt, SenderEmail,  RecipientEmail) 
-VALUES (?, ?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY), ?, ?)`
+func (m *SharedFileModel) Insert(docName, senderUserName, senderEmail, recipientUserName, recipientEmail,
+	password string, expiresAt int) (int, error) {
+	stmt := `INSERT INTO files (DocName, SenderName, SenderEmail, RecipientName, RecipientEmail, Password,
+                  CreatedAt, Expires) 
+VALUES (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
 
-	result, err := m.DB.Exec(stmt, docName, recipientUserName, senderUserName, expiresAt, senderEmail,
-		recipientEmail)
+	result, err := m.DB.Exec(stmt, docName, senderUserName, senderEmail, recipientUserName, recipientEmail,
+		password, expiresAt)
 	if err != nil {
 		return 0, err
 	}
