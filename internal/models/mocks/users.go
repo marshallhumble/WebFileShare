@@ -7,7 +7,7 @@ import (
 type UserModel struct {
 }
 
-func (m *UserModel) Insert(name, email, password string) error {
+func (m *UserModel) Insert(name, email, password string, admin, guest bool) error {
 	switch email {
 	case "dupe@example.com":
 		return models.ErrDuplicateEmail
@@ -24,12 +24,12 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return 0, models.ErrInvalidCredentials
 }
 
-func (m *UserModel) Exists(id int) (bool, bool, error) {
+func (m *UserModel) Exists(id int) (bool, bool, bool, error) {
 	switch id {
 	case 1:
-		return true, false, nil
+		return true, false, false, nil
 	default:
-		return false, false, nil
+		return false, false, false, nil
 	}
 }
 

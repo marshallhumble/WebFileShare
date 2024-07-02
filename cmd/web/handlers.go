@@ -125,26 +125,44 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	password := app.RandPasswordGen(15)
+	app.logger.Info("password :" + password)
 	//If there are no errors let's copy the file
 	if fHeader.Size > 0 {
 		f, _ := safeopen.CreateAt("./uploads/", fHeader.Filename)
 		defer f.Close()
-		//io.Copy(f, file)
 	}
 
-	id, err := app.sharedFile.Insert(fHeader.Filename, form.RecipientUserName, form.SenderUserName, form.SenderEmail,
-		form.RecipientEmail, form.Expires)
-
+	id, err := app.sharedFile.Insert(fHeader.Filename, form.SenderUserName, form.SenderEmail, form.RecipientUserName,
+		form.RecipientEmail, password, form.Expires)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
+	app.logger.Info("File uploaded", "id: ", id)
+
 	//Let's send some mail
 	if err = app.config.SendMail(form.RecipientUserName, form.SenderUserName, form.RecipientEmail,
-		form.SenderEmail, fHeader.Filename); err != nil {
+		form.SenderEmail, fHeader.Filename, password); err != nil {
 		app.serverError(w, r, err)
 	}
+	app.logger.Info("Email sent! ", "email: ", form.RecipientEmail)
+	// Insert(name, email, password string, admin, guest bool)
+	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password, false, true); err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.AddFieldError("recipientEmail", "Email address is already in use")
+
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, r, http.StatusUnprocessableEntity, "create.gohtml", data)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	app.logger.Info("User created! ", "user: ", form.RecipientEmail)
 
 	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
 
@@ -182,7 +200,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already
 	// exists then add an error message to the form and re-display it.
-	if err := app.users.Insert(form.Name, form.Email, form.Password); err != nil {
+	if err := app.users.Insert(form.Name, form.Email, form.Password, false, false); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in use")
 
@@ -315,7 +333,6 @@ func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := app.users.Get(id)
-	fmt.Println(user)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

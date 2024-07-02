@@ -12,7 +12,7 @@ html, body {
 
 body {
     line-height: 1.5;
-    background-color: #fdfdfd;
+    background-color: #ffffff;
     color: #2e2e2e;
     overflow-y: scroll;
 }
@@ -60,7 +60,7 @@ nav {
     border-bottom: 1px solid #E4E5E7;
     padding-top: 17px;
     padding-bottom: 15px;
-    background: #F7F9FA;
+    background: #ffffff;
     height: 60px;
     color: #e1e5ec;
     display: flex;

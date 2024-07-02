@@ -122,7 +122,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		// Otherwise, we check to see if a user with that ID exists in our
 		// database.
-		exists, admin, err := app.users.Exists(id)
+		exists, admin, guest, err := app.users.Exists(id)
 		if err != nil {
 			app.serverError(w, r, err)
 			return
@@ -134,6 +134,11 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		// value of true in the request context) and assign it to r.
 		if exists {
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
+		if guest {
+			ctx := context.WithValue(r.Context(), isGuestAccount, true)
 			r = r.WithContext(ctx)
 		}
 

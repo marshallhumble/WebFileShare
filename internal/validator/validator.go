@@ -1,11 +1,9 @@
 package validator
 
 import (
-	"math/rand"
 	"regexp"
 	"slices"
 	"strings"
-	"time"
 	"unicode/utf8"
 )
 
@@ -75,21 +73,4 @@ func MinChars(value string, n int) bool {
 // expression pattern.
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
-}
-
-// Rename files before storage on disk
-func SafeFileName(length int) string {
-
-	var (
-		seededRand *rand.Rand = rand.New(
-			rand.NewSource(time.Now().UnixNano()))
-		charset = "abcdefghijklmnopqrstuvwxyz" +
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	)
-
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
-	}
-	return string(b)
 }
