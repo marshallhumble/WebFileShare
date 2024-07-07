@@ -1,0 +1,20 @@
+{{define "title"}}Your Files{{end}}
+
+{{define "main"}}
+    {{if .IsAuthenticated}}
+            <table>
+            <tr>
+                <th>Title</th>
+                <th>Recipient User Name</th>
+                <th>ID</th>
+            </tr>
+            {{range .SharedFiles}}
+                <tr>
+                    <td><a href='/files/view/{{.Id}}'>{{.DocName}}</a></td>
+                    <td>{{.RecipientName}}</td>
+                    <td>#{{.Id}}</td>
+                </tr>
+            {{end}}
+        {{end}}
+        </table>
+{{end}}

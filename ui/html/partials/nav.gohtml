@@ -1,17 +1,19 @@
 {{define "nav"}}
 <nav>
     <div>
-        <a href='/'>Home</a>
         <!-- Toggle the link based on authentication status -->
         {{if .IsGuest}}
-            <a href="/GET /files/view/">View</a>
+            <a href='/'>Get Files</a>
         {{end}}
         {{if eq false .IsGuest  }}
             {{if .IsAuthenticated}}
+            <a href='/'>Home</a>
             <a href='/files/create'>Upload file</a>
             {{end}}
         {{end}}
         {{if .IsAdmin}}
+            <a href='/'>Home</a>
+            <a href='/files/create'>Upload file</a>
             <a href="/users/">Users</a>
         {{end}}
     </div>
@@ -28,6 +30,5 @@
             <a href='/user/signup'>Signup</a>
             <a href='/user/login'>Login</a>
         {{end}}
-    </div>
 </nav>
 {{end}}

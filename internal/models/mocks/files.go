@@ -37,3 +37,10 @@ func (m *SharedFileModel) Get(id int) (models.SharedFile, error) {
 func (m *SharedFileModel) Latest() ([]models.SharedFile, error) {
 	return []models.SharedFile{mockFile}, nil
 }
+
+func (m *SharedFileModel) GetFileFromEmail(email string) ([]models.SharedFile, error) {
+	return []models.SharedFile{mockFile}, nil
+}
+func (m *SharedFileModel) GetCreatedFiles(email string) ([]models.SharedFile, error) {
+	return []models.SharedFile{mockFile}, nil
+}

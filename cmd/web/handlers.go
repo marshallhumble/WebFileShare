@@ -41,17 +41,56 @@ type userLoginForm struct {
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
-	sharedFiles, err := app.sharedFile.Latest()
-	if err != nil {
-		app.serverError(w, r, err)
-		return
+	if app.isGuest(r) {
+		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
+		if email == nil {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+
+		sharedFiles, err := app.sharedFile.GetFileFromEmail(email.(string))
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		data := app.newTemplateData(r)
+		data.SharedFiles = sharedFiles
+
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
 	}
 
-	data := app.newTemplateData(r)
-	data.SharedFiles = sharedFiles
+	if app.isAdmin(r) {
+		sharedFiles, err := app.sharedFile.Latest()
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
 
-	// Use the new render helper.
-	app.render(w, r, http.StatusOK, "home.gohtml", data)
+		data := app.newTemplateData(r)
+		data.SharedFiles = sharedFiles
+
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+	}
+
+	if !app.isGuest(r) && app.isAuthenticated(r) {
+		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
+		if email == nil {
+			app.clientError(w, http.StatusBadRequest)
+			return
+		}
+
+		sharedFiles, err := app.sharedFile.GetCreatedFiles(email.(string))
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		data := app.newTemplateData(r)
+		data.SharedFiles = sharedFiles
+
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+	}
 }
 
 func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +113,6 @@ func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.SharedFile = sharedF
 
-	// Use the new render helper.
 	app.render(w, r, http.StatusOK, "view.gohtml", data)
 }
 
@@ -272,9 +310,10 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Add the ID of the current user to the session, so that they are now
+	// Add the ID & Email of the current user to the session, so that they are now
 	// 'logged in'.
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+	app.sessionManager.Put(r.Context(), "authenticatedUserEmail", form.Email)
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/files/create", http.StatusSeeOther)
@@ -315,7 +354,6 @@ func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Users = users
 
-	// Use the new render helper.
 	app.render(w, r, http.StatusOK, "users.gohtml", data)
 
 }
