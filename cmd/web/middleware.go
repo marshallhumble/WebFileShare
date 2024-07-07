@@ -138,7 +138,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		}
 
 		if guest {
-			ctx := context.WithValue(r.Context(), isGuestAccount, true)
+			ctx := context.WithValue(r.Context(), isGuestContextKey, true)
 			r = r.WithContext(ctx)
 		}
 

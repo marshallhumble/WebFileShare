@@ -2,16 +2,21 @@
 <nav>
     <div>
         <a href='/'>Home</a>
-
         <!-- Toggle the link based on authentication status -->
-        {{if .IsAuthenticated}}
-            <a href='/files/create'>Upload file</a>
+        {{if .IsGuest}}
+            <a href="/GET /files/view/">View</a>
         {{end}}
-        {{ if .IsAdmin}}
+        {{if eq false .IsGuest  }}
+            {{if .IsAuthenticated}}
+            <a href='/files/create'>Upload file</a>
+            {{end}}
+        {{end}}
+        {{if .IsAdmin}}
             <a href="/users/">Users</a>
         {{end}}
     </div>
     <div>
+    </div>
         <!-- Toggle the links based on authentication status -->
         {{if .IsAuthenticated}}
             <form action='/user/logout' method='POST'>

@@ -21,6 +21,7 @@ type templateData struct {
 	Flash           string
 	IsAuthenticated bool
 	IsAdmin         bool
+	IsGuest         bool
 	CSRFToken       string
 }
 
