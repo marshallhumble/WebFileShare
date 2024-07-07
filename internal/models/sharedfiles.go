@@ -11,6 +11,8 @@ type SharedFileModelInterface interface {
 		password string, expiresAt int) (int, error)
 	Get(id int) (SharedFile, error)
 	Latest() ([]SharedFile, error)
+	GetFileFromEmail(email string) ([]SharedFile, error)
+	GetCreatedFiles(email string) ([]SharedFile, error)
 }
 
 type SharedFile struct {
@@ -100,4 +102,71 @@ func (m *SharedFileModel) Latest() ([]SharedFile, error) {
 		return nil, err
 	}
 	return sharedFiles, nil
+}
+
+func (m *SharedFileModel) Remove(id int) error {
+	result, err := m.DB.Exec(`DELETE FROM files WHERE Id = ?`, id)
+	if err != nil {
+		return err
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNoRecord
+	}
+	return nil
+}
+
+func (m *SharedFileModel) GetFileFromEmail(email string) ([]SharedFile, error) {
+	stmt := `SELECT Id, DocName, RecipientName, SenderName, CreatedAt, 
+       SenderEmail, RecipientEmail FROM files WHERE Expires > UTC_TIMESTAMP() AND RecipientEmail = ?`
+
+	rows, err := m.DB.Query(stmt, email)
+	if err != nil {
+		return nil, err
+	}
+
+	var sharedFiles []SharedFile
+
+	for rows.Next() {
+		var s SharedFile
+		err = rows.Scan(&s.Id, &s.DocName, &s.RecipientName, &s.SenderName, &s.CreatedAt,
+			&s.SenderEmail, &s.RecipientEmail)
+		if err != nil {
+			return nil, err
+		}
+
+		sharedFiles = append(sharedFiles, s)
+	}
+
+	return sharedFiles, nil
+
+}
+
+func (m *SharedFileModel) GetCreatedFiles(email string) ([]SharedFile, error) {
+	stmt := `SELECT Id, DocName, RecipientName, SenderName, CreatedAt, 
+       SenderEmail, RecipientEmail FROM files WHERE Expires > UTC_TIMESTAMP() AND SenderEmail = ?`
+
+	rows, err := m.DB.Query(stmt, email)
+	if err != nil {
+		return nil, err
+	}
+
+	var sharedFiles []SharedFile
+
+	for rows.Next() {
+		var s SharedFile
+		err = rows.Scan(&s.Id, &s.DocName, &s.RecipientName, &s.SenderName, &s.CreatedAt,
+			&s.SenderEmail, &s.RecipientEmail)
+		if err != nil {
+			return nil, err
+		}
+
+		sharedFiles = append(sharedFiles, s)
+	}
+
+	return sharedFiles, nil
+
 }
