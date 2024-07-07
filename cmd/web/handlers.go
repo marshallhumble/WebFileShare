@@ -126,7 +126,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	password := app.RandPasswordGen(15)
-	app.logger.Info("password :" + password)
+
 	//If there are no errors let's copy the file
 	if fHeader.Size > 0 {
 		f, _ := safeopen.CreateAt("./uploads/", fHeader.Filename)
@@ -151,11 +151,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	// Insert(name, email, password string, admin, guest bool)
 	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password, false, true); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
-			form.AddFieldError("recipientEmail", "Email address is already in use")
-
-			data := app.newTemplateData(r)
-			data.Form = form
-			app.render(w, r, http.StatusUnprocessableEntity, "create.gohtml", data)
+			app.sessionManager.Put(r.Context(), "flash", "Email address is already in use, no new account created")
 		} else {
 			app.serverError(w, r, err)
 		}
