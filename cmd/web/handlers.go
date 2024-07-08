@@ -39,6 +39,10 @@ type userLoginForm struct {
 	validator.Validator `form:"-"`
 }
 
+type files struct {
+	files []models.SharedFile
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	if app.isGuest(r) {
@@ -201,6 +205,11 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
 
 	http.Redirect(w, r, fmt.Sprintf("/files/view/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) fileDownload(w http.ResponseWriter, r *http.Request) {
+	file := r.PathValue("file")
+	http.ServeFile(w, r, "./uploads/"+file)
 }
 
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {

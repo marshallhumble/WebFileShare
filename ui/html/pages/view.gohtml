@@ -3,7 +3,12 @@
 {{define "main"}}
     <!-- Include the CSRF token -->
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+
+
     {{with .SharedFile}}
+    <input type='hidden' value='{{.DocName}}' name='file'>
+    <form action='/files/download/{{.DocName}}' method='GET'>
+
     <div class='sharedfile'>
         <div class='metadata'>
             <strong>{{.DocName}}</strong>
@@ -16,6 +21,9 @@
             <time>Created: <td>{{humanDate .CreatedAt}}</time>
             <time>Doc Name: {{.DocName}}  </time>
         </div>
+
+        <input type='submit' value='Download'>
     </div>
     {{end}}
+    </form>
 {{end}}

@@ -39,6 +39,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /files/view/{id}", dynamic.ThenFunc(app.fileView))
 	mux.Handle("GET /files/create", protected.ThenFunc(app.fileCreate))
 	mux.Handle("POST /files/create", protected.ThenFunc(app.fileCreatePost))
+	mux.Handle("GET /files/download/{file}", protected.ThenFunc(app.fileDownload))
 
 	//Protected User Routes
 	mux.Handle("GET /users/", admin.ThenFunc(app.getAllUsers))
