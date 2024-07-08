@@ -39,13 +39,17 @@ type userLoginForm struct {
 	validator.Validator `form:"-"`
 }
 
-type files struct {
-	files []models.SharedFile
-}
-
+// home Want to show a different page for guest, admin, regular users and non-authenticated users.
+// All users get authenticated, so we need to filter on guest and admin to not show duplicate home pages.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
-	if app.isGuest(r) {
+	var (
+		admin = app.isAdmin(r)
+		guest = app.isGuest(r)
+		auth  = app.isAuthenticated(r)
+	)
+
+	if guest && !admin {
 		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
 		if email == nil {
 			app.clientError(w, http.StatusBadRequest)
@@ -64,7 +68,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 	}
 
-	if app.isAdmin(r) {
+	if admin {
 		sharedFiles, err := app.sharedFile.Latest()
 		if err != nil {
 			app.serverError(w, r, err)
@@ -77,7 +81,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 	}
 
-	if !app.isGuest(r) && app.isAuthenticated(r) {
+	if auth && !guest && !admin {
 		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
 		if email == nil {
 			app.clientError(w, http.StatusBadRequest)
@@ -95,6 +99,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 	}
+
+	if !admin && !auth && !guest {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+	}
+
 }
 
 func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
@@ -208,6 +218,11 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) fileDownload(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		app.clientError(w, http.StatusUnauthorized)
+		return
+	}
+
 	file := r.PathValue("file")
 	http.ServeFile(w, r, "./uploads/"+file)
 }
@@ -325,7 +340,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Put(r.Context(), "authenticatedUserEmail", form.Email)
 
 	// Redirect the user to the create snippet page.
-	http.Redirect(w, r, "/files/create", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
