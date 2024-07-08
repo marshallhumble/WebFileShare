@@ -3,16 +3,14 @@
     <div>
         <!-- Toggle the link based on authentication status -->
         {{if .IsGuest}}
-            <a href='/'>Get Files</a>
+            <a href='/'>Home</a>
         {{end}}
         {{if eq false .IsGuest  }}
             {{if .IsAuthenticated}}
-            <a href='/'>Home</a>
             <a href='/files/create'>Upload file</a>
             {{end}}
         {{end}}
         {{if .IsAdmin}}
-            <a href='/'>Home</a>
             <a href='/files/create'>Upload file</a>
             <a href="/users/">Users</a>
         {{end}}
