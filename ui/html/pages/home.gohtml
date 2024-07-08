@@ -1,12 +1,12 @@
 {{define "title"}}Home{{end}}
 
 {{define "main"}}
-
     {{if .IsAuthenticated}}
         <h2>Latest Files</h2>
         {{if .SharedFiles}}
         <table>
         <tr>
+
             <th>Title</th>
             <th>Recipient User Name</th>
             <th>ID</th>
@@ -18,9 +18,11 @@
             <td>#{{.Id}}</td>
         </tr>
         {{end}}
+
         {{end}}
         </table>
     {{else}}
         <h1>Welcome to access this service you will need to <a href="/user/login">log in</a> </h1>
 {{end}}
+
 {{end}}
