@@ -40,6 +40,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /files/create", protected.ThenFunc(app.fileCreate))
 	mux.Handle("POST /files/create", protected.ThenFunc(app.fileCreatePost))
 	mux.Handle("GET /files/download/{file}", protected.ThenFunc(app.fileDownload))
+	mux.Handle("GET /files/delete/{id}", protected.ThenFunc(app.fileDelete))
 
 	//Protected User Routes
 	mux.Handle("GET /users/", admin.ThenFunc(app.getAllUsers))

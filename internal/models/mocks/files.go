@@ -44,3 +44,8 @@ func (m *SharedFileModel) GetFileFromEmail(email string) ([]models.SharedFile, e
 func (m *SharedFileModel) GetCreatedFiles(email string) ([]models.SharedFile, error) {
 	return []models.SharedFile{mockFile}, nil
 }
+
+func (m *SharedFileModel) Remove(id int) error {
+
+	return nil
+}

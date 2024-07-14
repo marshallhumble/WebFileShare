@@ -6,8 +6,9 @@
 
 
     {{with .SharedFile}}
-    <input type='hidden' value='{{.DocName}}' name='file'>
+
     <form action='/files/download/{{.DocName}}' method='GET'>
+    <input type='hidden' value='{{.DocName}}' name='file'>
 
     <div class='sharedfile'>
         <div class='metadata'>
@@ -22,7 +23,8 @@
             <time>Doc Name: {{.DocName}}  </time>
         </div>
 
-        <input type='submit' value='Download'>
+        <input type='submit' name='Download' value='Download'>
+        <input type='submit' value='Delete' formaction='/files/delete/{{.Id}}'>
     </div>
     {{end}}
     </form>

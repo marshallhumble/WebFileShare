@@ -13,6 +13,7 @@ type SharedFileModelInterface interface {
 	Latest() ([]SharedFile, error)
 	GetFileFromEmail(email string) ([]SharedFile, error)
 	GetCreatedFiles(email string) ([]SharedFile, error)
+	Remove(id int) error
 }
 
 type SharedFile struct {

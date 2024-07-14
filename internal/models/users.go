@@ -27,6 +27,7 @@ type User struct {
 	HashedPassword []byte
 	Created        time.Time
 	Admin          bool
+	User           bool
 	Guest          bool
 }
 
@@ -101,7 +102,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return id, nil
 }
 
-func (m *UserModel) Exists(id int) (bool, bool, bool, error) {
+func (m *UserModel) Exists(id int) (exist bool, admin bool, guest bool, error error) {
 	stmt := `SELECT id, Admin, guest from users WHERE id = ?`
 
 	var u User

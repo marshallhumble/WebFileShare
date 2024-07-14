@@ -3,15 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/google/safeopen"
 	"net/http"
+	"os"
 	"strconv"
 
 	//Internal
 	"fileshare/internal/models"
 	"fileshare/internal/validator"
-
-	//External
-	"github.com/google/safeopen"
 )
 
 type fileCreateForm struct {
@@ -40,19 +39,22 @@ type userLoginForm struct {
 }
 
 // home Want to show a different page for guest, admin, regular users and non-authenticated users.
-// All users get authenticated, so we need to filter on guest and admin to not show duplicate home pages.
+// All users get authenticated, so we need to filter on guest and admin to limit views, also to not
+// show duplicate home pages.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		admin = app.isAdmin(r)
 		guest = app.isGuest(r)
 		auth  = app.isAuthenticated(r)
+		user  = app.isUser(r)
 	)
 
-	if guest && !admin {
+	if guest && !admin && !user {
 		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
 		if email == nil {
 			app.clientError(w, http.StatusBadRequest)
+
 			return
 		}
 
@@ -61,7 +63,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, r, err)
 			return
 		}
-
 		data := app.newTemplateData(r)
 		data.SharedFiles = sharedFiles
 
@@ -77,17 +78,15 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 		data := app.newTemplateData(r)
 		data.SharedFiles = sharedFiles
-
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 	}
 
-	if auth && !guest && !admin {
+	if user {
 		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
 		if email == nil {
 			app.clientError(w, http.StatusBadRequest)
 			return
 		}
-
 		sharedFiles, err := app.sharedFile.GetCreatedFiles(email.(string))
 		if err != nil {
 			app.serverError(w, r, err)
@@ -98,16 +97,23 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		data.SharedFiles = sharedFiles
 
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
 	}
 
-	if !admin && !auth && !guest {
+	if !auth {
 		data := app.newTemplateData(r)
-		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		app.render(w, r, http.StatusSeeOther, "home.gohtml", data)
 	}
 
 }
 
 func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
+	/*if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}*/
+
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
@@ -131,6 +137,12 @@ func (app *application) fileView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) fileCreate(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}
+
 	data := app.newTemplateData(r)
 
 	data.Form = fileCreateForm{
@@ -140,6 +152,12 @@ func (app *application) fileCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}
+
 	var form fileCreateForm
 
 	if err := app.decodePostForm(r, &form); err != nil {
@@ -207,13 +225,11 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		} else {
 			app.serverError(w, r, err)
 		}
-		return
 	}
 
 	app.logger.Info("User created! ", "user: ", form.RecipientEmail)
 
 	app.sessionManager.Put(r.Context(), "flash", "File successfully uploaded!")
-
 	http.Redirect(w, r, fmt.Sprintf("/files/view/%d", id), http.StatusSeeOther)
 }
 
@@ -225,6 +241,35 @@ func (app *application) fileDownload(w http.ResponseWriter, r *http.Request) {
 
 	file := r.PathValue("file")
 	http.ServeFile(w, r, "./uploads/"+file)
+}
+
+func (app *application) fileDelete(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		app.clientError(w, http.StatusUnauthorized)
+		return
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+	}
+
+	if err := app.sharedFile.Remove(id); err != nil {
+		app.serverError(w, r, err)
+	}
+
+	file := fmt.Sprintf("./uploads/" + r.PathValue("file"))
+
+	if err := os.Remove(file); err != nil {
+		app.logger.Info("Error removing file", "error", err)
+	} else {
+		app.logger.Info("File removed", "filename", r.FormValue("DocName"))
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "File successfully deleted!")
+	http.Redirect(w, r, fmt.Sprintf("/"), http.StatusSeeOther)
+	return
+
 }
 
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
@@ -368,6 +413,12 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}
+
 	users, err := app.users.GetAllUsers()
 
 	if err != nil {
@@ -383,6 +434,11 @@ func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id < 1 {
@@ -404,6 +460,12 @@ func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}
+
 	var form userSignupForm
 
 	id, err := strconv.Atoi(r.PathValue("id"))

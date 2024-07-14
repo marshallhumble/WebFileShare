@@ -5,11 +5,10 @@
         {{if .IsGuest}}
             <a href='/'>Home</a>
         {{end}}
-        {{if eq false .IsGuest  }}
-            {{if .IsAuthenticated}}
-            <a href='/files/create'>Upload file</a>
-            {{end}}
+        {{if .IsUser}}
+        <a href='/files/create'>Upload file</a>
         {{end}}
+
         {{if .IsAdmin}}
             <a href='/files/create'>Upload file</a>
             <a href="/users/">Users</a>

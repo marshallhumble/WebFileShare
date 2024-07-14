@@ -146,8 +146,10 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		if admin {
 			ctx := context.WithValue(r.Context(), isAdminContextKey, true)
 			r = r.WithContext(ctx)
-		} else {
-			ctx := context.WithValue(r.Context(), isAdminContextKey, false)
+		}
+
+		if !guest && !admin && exists {
+			ctx := context.WithValue(r.Context(), isUserContextKey, true)
 			r = r.WithContext(ctx)
 		}
 
