@@ -10,7 +10,7 @@ require (
 	github.com/google/safeopen v0.0.0-20240125081138-66b54d5181c6
 	github.com/justinas/alice v1.2.0
 	github.com/justinas/nosurf v1.1.1
-	golang.org/x/crypto v0.24.0
+	golang.org/x/crypto v0.25.0
 )
 
 require (
