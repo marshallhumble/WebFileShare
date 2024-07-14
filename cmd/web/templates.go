@@ -20,6 +20,7 @@ type templateData struct {
 	Form            any
 	Flash           string
 	IsAuthenticated bool
+	IsUser          bool
 	IsAdmin         bool
 	IsGuest         bool
 	CSRFToken       string

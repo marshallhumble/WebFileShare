@@ -67,6 +67,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		IsAuthenticated: app.isAuthenticated(r),
 		IsAdmin:         app.isAdmin(r),
 		IsGuest:         app.isGuest(r),
+		IsUser:          app.isUser(r),
 		CSRFToken:       nosurf.Token(r),
 	}
 }
@@ -125,6 +126,15 @@ func (app *application) isGuest(r *http.Request) bool {
 	}
 
 	return isGuestAccount
+}
+
+func (app *application) isUser(r *http.Request) bool {
+	isUser, ok := r.Context().Value(isUserContextKey).(bool)
+	if !ok {
+		return false
+	}
+
+	return isUser
 }
 
 // RandPasswordGen get a random string of alphanum characters based on int length
