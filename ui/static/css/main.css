@@ -115,3 +115,13 @@ nav a.live:after {
     -moz-transform: rotate(45deg);
     -webkit-transform: rotate(-45deg);
 }
+
+
+
+table {
+    display: inline flex;
+    flex: 400px;
+    flex-flow: row wrap;
+    border-spacing: 15px;
+}
+

@@ -24,12 +24,12 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return 0, models.ErrInvalidCredentials
 }
 
-func (m *UserModel) Exists(id int) (bool, bool, bool, error) {
+func (m *UserModel) Exists(id int) (exist bool, admin bool, user bool, guest bool, disabled bool, error error) {
 	switch id {
 	case 1:
-		return true, false, false, nil
+		return true, false, false, false, false, nil
 	default:
-		return false, false, false, nil
+		return false, false, false, false, false, nil
 	}
 }
 
