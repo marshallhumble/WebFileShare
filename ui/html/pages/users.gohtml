@@ -5,19 +5,25 @@
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     <h2>All Users</h2>
         {{if .Users}}
-            <table>
+            <table class="users">
                 <tr>
-                    <th>Name: </th>
-                    <th>Email: </th>
-                    <th>Created: </th>
-                    <th>Admin: </th>
+                    <th class="users">Name: </th>
+                    <th class="users">Email: </th>
+                    <th class="users">Created: </th>
+                    <th class="users">Admin: </th>
+                    <th class="users">User: </th>
+                    <th class="users">Guest: </th>
+                    <th class="users">Disabled: </th>
                 </tr>
                 {{range .Users}}
                     <tr>
-                        <td><a href='/user/edit/{{.ID}}'>{{.Name}}</a></td>
-                        <td>{{.Email}}</td>
-                        <td>Created: {{humanDate .Created}}</td>
-                        <td>{{.Admin}}</td>
+                        <td class="users"><a href='/user/edit/{{.ID}}'>{{.Name}}</a></td>
+                        <td class="users">{{.Email}}</td>
+                        <td class="users">{{humanDate .Created}}</td>
+                        <td class="users">{{.Admin}}</td>
+                        <td class="users">{{.User}}</td>
+                        <td class="users">{{.Guest}}</td>
+                        <td class="users">{{.Disabled}}</td>
                     </tr>
                 {{end}}
             </table>

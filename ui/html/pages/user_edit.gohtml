@@ -29,7 +29,7 @@
                 <time>Created: <td>{{humanDate .Created}}</time> <br>
                 {{if .Admin}}
                 <div>
-                    <label for="name"> Admin:
+                    <label for="admin"> Admin:
                         <select id="admin" name="admin">
                             <option value="True" selected>True</option>
                             <option value="False">False</option>
@@ -38,8 +38,65 @@
                 </div>
                 {{else}}
                     <div>
-                        <label for="name"> Admin:
+                        <label for="admin"> Admin:
                             <select id="admin" name="admin">
+                                <option value="True">True</option>
+                                <option value="False" selected>False</option>
+                            </select>
+                        </label>
+                    </div>
+                {{end}}
+                {{if .User}}
+                    <div>
+                        <label for="user"> User:
+                            <select id="user" name="user">
+                                <option value="True" selected>True</option>
+                                <option value="False">False</option>
+                            </select>
+                        </label>
+                    </div>
+                {{else}}
+                    <div>
+                        <label for="guest"> User:
+                            <select id="user" name="user">
+                                <option value="True">True</option>
+                                <option value="False" selected>False</option>
+                            </select>
+                        </label>
+                    </div>
+                {{end}}
+                {{if .Guest}}
+                    <div>
+                        <label for="guest"> Guest:
+                            <select id="guest" name="guest">
+                                <option value="True" selected>True</option>
+                                <option value="False">False</option>
+                            </select>
+                        </label>
+                    </div>
+                {{else}}
+                    <div>
+                        <label for="guest"> Guest:
+                            <select id="guest" name="guest">
+                                <option value="True">True</option>
+                                <option value="False" selected>False</option>
+                            </select>
+                        </label>
+                    </div>
+                {{end}}
+                {{if .Disabled}}
+                    <div>
+                        <label for="disabled"> Disabled:
+                            <select id="disabled" name="disabled">
+                                <option value="True" selected>True</option>
+                                <option value="False">False</option>
+                            </select>
+                        </label>
+                    </div>
+                {{else}}
+                    <div>
+                        <label for="disabled"> Disabled:
+                            <select id="guest" name="disabled">
                                 <option value="True">True</option>
                                 <option value="False" selected>False</option>
                             </select>
@@ -49,7 +106,7 @@
             </div>
         </div>
     {{end}}
-        </div>
+        <div>
         <input type="submit" name="update" value="Update Profile">
         </div>
     </form>

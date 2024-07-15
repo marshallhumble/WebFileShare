@@ -14,7 +14,7 @@ import (
 type UserModelInterface interface {
 	Insert(name, email, password string, admin, guest bool) error
 	Authenticate(email, password string) (int, error)
-	Exists(id int) (bool, bool, bool, error)
+	Exists(id int) (exist bool, admin bool, user bool, guest bool, disabled bool, error error)
 	GetAllUsers() ([]User, error)
 	Get(id int) (User, error)
 	UpdateUser(id int, name, email, password string, admin bool) (User, error)
@@ -29,6 +29,7 @@ type User struct {
 	Admin          bool
 	User           bool
 	Guest          bool
+	Disabled       bool
 }
 
 type UserModel struct {
@@ -43,8 +44,8 @@ func (m *UserModel) Insert(name, email, password string, admin, guest bool) erro
 		return err
 	}
 
-	stmt := `INSERT INTO users (name, email, hashed_password, created, Admin, guest)
-    VALUES(?, ?, ?, UTC_TIMESTAMP(), ?, ?)`
+	stmt := `INSERT INTO users (name, email, hashed_password, created, Admin, guest, disabled)
+    VALUES(?, ?, ?, UTC_TIMESTAMP(), ?, ?, ?)`
 
 	// Use the Exec() method to insert the user details and hashed password
 	// into the users table.
@@ -102,12 +103,12 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return id, nil
 }
 
-func (m *UserModel) Exists(id int) (exist bool, admin bool, guest bool, error error) {
-	stmt := `SELECT id, Admin, guest from users WHERE id = ?`
+func (m *UserModel) Exists(id int) (exist bool, admin bool, user bool, guest bool, disabled bool, error error) {
+	stmt := `SELECT id, Admin, guest, disabled from users WHERE id = ?`
 
 	var u User
 
-	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Admin, &u.Guest)
+	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Admin, &u.Guest, &u.Disabled)
 
 	if err != nil {
 		// If the query returns no rows, then row.Scan() will return a
@@ -115,23 +116,27 @@ func (m *UserModel) Exists(id int) (exist bool, admin bool, guest bool, error er
 		// error specifically, and return our own ErrNoRecord error
 		// instead.
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, false, false, ErrNoRecord
+			return false, false, false, false, false, ErrNoRecord
 		}
 	}
 
+	if u.Disabled {
+		return false, false, false, false, true, nil
+	}
+
 	if u.Admin {
-		return true, true, false, nil
+		return true, true, false, false, false, nil
 	}
 
 	if u.Guest {
-		return true, false, true, nil
+		return true, false, false, true, false, nil
 	}
 
-	return true, false, false, nil
+	return true, false, true, false, false, nil
 }
 
 func (m *UserModel) GetAllUsers() ([]User, error) {
-	stmt := "SELECT id, name, email, hashed_password, created, Admin FROM users"
+	stmt := "SELECT id, name, email, hashed_password, created, admin, user, guest, disabled FROM users"
 
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
@@ -144,7 +149,8 @@ func (m *UserModel) GetAllUsers() ([]User, error) {
 
 	for rows.Next() {
 		var u User
-		err = rows.Scan(&u.ID, &u.Name, &u.Email, &u.HashedPassword, &u.Created, &u.Admin)
+		err = rows.Scan(&u.ID, &u.Name, &u.Email, &u.HashedPassword, &u.Created,
+			&u.Admin, &u.User, &u.Guest, &u.Disabled)
 		if err != nil {
 			return nil, err
 		}
@@ -160,11 +166,12 @@ func (m *UserModel) GetAllUsers() ([]User, error) {
 }
 
 func (m *UserModel) Get(id int) (User, error) {
-	stmt := `SELECT id, name, email, created, admin FROM users WHERE id = ?`
+	stmt := `SELECT id, name, email, created, admin, user, guest, disabled FROM users WHERE id = ?`
 
 	var u User
 
-	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created, &u.Admin)
+	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created,
+		&u.Admin, &u.User, &u.Guest, &u.Disabled)
 
 	if err != nil {
 		// If the query returns no rows, then row.Scan() will return a

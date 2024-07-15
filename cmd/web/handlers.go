@@ -44,17 +44,19 @@ type userLoginForm struct {
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	var (
-		admin = app.isAdmin(r)
-		guest = app.isGuest(r)
 		auth  = app.isAuthenticated(r)
+		admin = app.isAdmin(r)
 		user  = app.isUser(r)
+		guest = app.isGuest(r)
 	)
+
+	fmt.Printf("auth: %t, admin: %t, user: %t, guest: %t\n", auth, admin, user, guest)
 
 	if guest && !admin && !user {
 		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
 		if email == nil {
 			app.clientError(w, http.StatusBadRequest)
-
+			fmt.Printf("guest: %t", guest)
 			return
 		}
 
@@ -75,7 +77,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, r, err)
 			return
 		}
-
+		fmt.Printf("admin: %t", admin)
 		data := app.newTemplateData(r)
 		data.SharedFiles = sharedFiles
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
@@ -92,7 +94,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, r, err)
 			return
 		}
-
+		fmt.Printf("user: %t", user)
 		data := app.newTemplateData(r)
 		data.SharedFiles = sharedFiles
 
@@ -102,6 +104,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	if !auth {
 		data := app.newTemplateData(r)
+		fmt.Println("no auth")
 		app.render(w, r, http.StatusSeeOther, "home.gohtml", data)
 	}
 
