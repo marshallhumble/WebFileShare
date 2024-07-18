@@ -18,6 +18,7 @@ type UserModelInterface interface {
 	GetAllUsers() ([]User, error)
 	Get(id int) (User, error)
 	UpdateUser(id int, name, email, password string, admin bool) (User, error)
+	DeleteUser(id int) error
 }
 
 type User struct {
@@ -218,6 +219,16 @@ func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool)
 	usr.Email = email
 
 	return usr, nil
+}
+
+func (m *UserModel) DeleteUser(id int) error {
+	stmt := `DELETE FROM users WHERE id = ?`
+	_, err := m.DB.Exec(stmt, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func hashPassword(password string) ([]byte, error) {

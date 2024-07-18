@@ -46,6 +46,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /users/", admin.ThenFunc(app.getAllUsers))
 	mux.Handle("GET /user/edit/{id}", protected.ThenFunc(app.editUser))
 	mux.Handle("POST /user/edit/{id}", protected.ThenFunc(app.editUserPost))
+	mux.Handle("POST /user/delete/{id}", protected.ThenFunc(app.deleteUser))
 
 	//User Sign-up/Login/Logout
 	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))

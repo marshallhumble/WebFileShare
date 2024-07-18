@@ -49,3 +49,8 @@ func (m *UserModel) Get(id int) (models.User, error) {
 func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool) (models.User, error) {
 	return models.User{}, nil
 }
+
+func (m *UserModel) DeleteUser(id int) error {
+
+	return nil
+}

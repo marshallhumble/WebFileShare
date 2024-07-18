@@ -505,3 +505,23 @@ func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, http.StatusOK, "user_edit.gohtml", data)
 }
+
+func (app *application) deleteUser(w http.ResponseWriter, r *http.Request) {
+	if !app.isAdmin(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+		return
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+	}
+
+	if err := app.users.DeleteUser(id); err != nil {
+		app.serverError(w, r, err)
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "User Deleted")
+	http.Redirect(w, r, "/users/", http.StatusSeeOther)
+}

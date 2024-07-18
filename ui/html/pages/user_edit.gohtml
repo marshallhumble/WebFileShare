@@ -109,5 +109,8 @@
         <div>
         <input type="submit" name="update" value="Update Profile">
         </div>
+        {{if not .User.Admin }}
+            <div><input type='submit' value='Delete' formaction='/user/delete/{{.User.ID}}'></div>
+        {{end}}
     </form>
 {{end}}
