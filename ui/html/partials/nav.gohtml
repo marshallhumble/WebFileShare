@@ -7,11 +7,12 @@
         {{end}}
         {{if .IsUser}}
         <a href='/files/create'>Upload file</a>
+        <a href='/user/update/'>My User Profile</a>
         {{end}}
 
         {{if .IsAdmin}}
             <a href='/files/create'>Upload file</a>
-            <a href="/users/">Users</a>
+            <a href='/users/'>Users</a>
         {{end}}
     </div>
     <div>
