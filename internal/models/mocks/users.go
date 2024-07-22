@@ -7,7 +7,7 @@ import (
 type UserModel struct {
 }
 
-func (m *UserModel) Insert(name, email, password string, admin, guest bool) error {
+func (m *UserModel) Insert(name, email, password string, admin, user, guest bool) error {
 	switch email {
 	case "dupe@example.com":
 		return models.ErrDuplicateEmail
@@ -46,7 +46,7 @@ func (m *UserModel) Get(id int) (models.User, error) {
 	return u, nil
 }
 
-func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool) (models.User, error) {
+func (m *UserModel) UpdateUser(id int, name, email, password string, admin, user, guest bool) (models.User, error) {
 	return models.User{}, nil
 }
 

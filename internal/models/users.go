@@ -12,12 +12,12 @@ import (
 )
 
 type UserModelInterface interface {
-	Insert(name, email, password string, admin, guest bool) error
+	Insert(name, email, password string, admin, user, guest bool) error
 	Authenticate(email, password string) (int, error)
 	Exists(id int) (exist bool, admin bool, user bool, guest bool, disabled bool, error error)
 	GetAllUsers() ([]User, error)
 	Get(id int) (User, error)
-	UpdateUser(id int, name, email, password string, admin bool) (User, error)
+	UpdateUser(id int, name, email, password string, admin, user, guest bool) (User, error)
 	DeleteUser(id int) error
 }
 
@@ -38,15 +38,15 @@ type UserModel struct {
 }
 
 // Insert The usual user page sign-up no admins can be created this way explicitly declaring it false
-func (m *UserModel) Insert(name, email, password string, admin, guest bool) error {
+func (m *UserModel) Insert(name, email, password string, admin, user, guest bool) error {
 	// Create a bcrypt hash of the plain-text password.
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		return err
 	}
 
-	stmt := `INSERT INTO users (name, email, hashed_password, created, Admin, guest, disabled)
-    VALUES(?, ?, ?, UTC_TIMESTAMP(), ?, ?, ?)`
+	stmt := `INSERT INTO users (name, email, hashed_password, created, Admin, user, guest, disabled)
+    VALUES(?, ?, ?, UTC_TIMESTAMP(), ?, ?, ?, ?)`
 
 	// Use the Exec() method to insert the user details and hashed password
 	// into the users table.
@@ -189,7 +189,7 @@ func (m *UserModel) Get(id int) (User, error) {
 	return u, nil
 }
 
-func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool) (User, error) {
+func (m *UserModel) UpdateUser(id int, name, email, password string, admin, user, guest bool) (User, error) {
 	var usr User
 
 	HashedPassword, err := hashPassword(password)
@@ -197,8 +197,8 @@ func (m *UserModel) UpdateUser(id int, name, email, password string, admin bool)
 		return usr, err
 	}
 
-	stmt := `UPDATE users SET name = ?, email = ?, hashed_password = ?, admin = ? WHERE id = ?`
-	_, err = m.DB.Exec(stmt, name, email, HashedPassword, admin, id)
+	stmt := `UPDATE users SET name = ?, email = ?, hashed_password = ?, admin = ?, user = ?, guest = ? WHERE id = ?`
+	_, err = m.DB.Exec(stmt, name, email, HashedPassword, admin, user, guest, id)
 	if err != nil {
 		// If this returns an error, we use the errors.As() function to check
 		// whether the error has the type *mysql.MySQLError. If it does, the

@@ -29,6 +29,8 @@ type userSignupForm struct {
 	Email               string `form:"email"`
 	Password            string `form:"password"`
 	Admin               bool   `form:"-"`
+	User                bool   `form:"-"`
+	Guest               bool   `form:"-"`
 	validator.Validator `form:"-"`
 }
 
@@ -50,13 +52,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		guest = app.isGuest(r)
 	)
 
-	fmt.Printf("auth: %t, admin: %t, user: %t, guest: %t\n", auth, admin, user, guest)
-
 	if guest && !admin && !user {
 		email := app.sessionManager.Get(r.Context(), "authenticatedUserEmail")
 		if email == nil {
 			app.clientError(w, http.StatusBadRequest)
-			fmt.Printf("guest: %t", guest)
 			return
 		}
 
@@ -77,7 +76,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, r, err)
 			return
 		}
-		fmt.Printf("admin: %t", admin)
+
 		data := app.newTemplateData(r)
 		data.SharedFiles = sharedFiles
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
@@ -94,7 +93,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, r, err)
 			return
 		}
-		fmt.Printf("user: %t", user)
+
 		data := app.newTemplateData(r)
 		data.SharedFiles = sharedFiles
 
@@ -104,7 +103,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	if !auth {
 		data := app.newTemplateData(r)
-		fmt.Println("no auth")
 		app.render(w, r, http.StatusSeeOther, "home.gohtml", data)
 	}
 
@@ -222,7 +220,8 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	app.logger.Info("Email sent! ", "email: ", form.RecipientEmail)
 	// Insert(name, email, password string, admin, guest bool)
-	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password, false, true); err != nil {
+	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password,
+		false, false, true); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			app.sessionManager.Put(r.Context(), "flash", "Email address is already in use, no new account created")
 		} else {
@@ -306,7 +305,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already
 	// exists then add an error message to the form and re-display it.
-	if err := app.users.Insert(form.Name, form.Email, form.Password, false, false); err != nil {
+	if err := app.users.Insert(form.Name, form.Email, form.Password, false, true, false); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in use")
 
@@ -416,7 +415,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
-	if !app.isAuthenticated(r) {
+	if !app.isAdmin(r) {
 		data := app.newTemplateData(r)
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 		return
@@ -437,7 +436,7 @@ func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
-	if !app.isAuthenticated(r) {
+	if !app.isAdmin(r) {
 		data := app.newTemplateData(r)
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 		return
@@ -463,7 +462,7 @@ func (app *application) editUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
-	if !app.isAuthenticated(r) {
+	if !app.isAdmin(r) {
 		data := app.newTemplateData(r)
 		app.render(w, r, http.StatusOK, "home.gohtml", data)
 		return
@@ -482,11 +481,12 @@ func (app *application) editUserPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.users.UpdateUser(id, form.Name, form.Email, form.Password, form.Admin)
+	user, err := app.users.UpdateUser(id, form.Name, form.Email, form.Password, form.Admin, form.User, form.Guest)
 
 	data := app.newTemplateData(r)
 	data.User = user
 
+	app.sessionManager.Put(r.Context(), "flash", "Information Updated")
 	app.render(w, r, http.StatusOK, "user_edit.gohtml", data)
 }
 
@@ -508,4 +508,48 @@ func (app *application) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), "flash", "User Deleted")
 	http.Redirect(w, r, "/users/", http.StatusSeeOther)
+}
+
+func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		app.render(w, r, http.StatusOK, "home.gohtml", data)
+	}
+
+	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+
+	user, err := app.users.Get(id)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.User = user
+
+	app.render(w, r, http.StatusOK, "user_password.gohtml", data)
+}
+
+func (app *application) updateUserPost(w http.ResponseWriter, r *http.Request) {
+
+	var form userSignupForm
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err = app.decodePostForm(r, &form); err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	user, err := app.users.UpdateUser(id, form.Name, form.Email, form.Password, false, true, false)
+
+	data := app.newTemplateData(r)
+	data.User = user
+
+	app.sessionManager.Put(r.Context(), "flash", "Information Updated")
+	app.render(w, r, http.StatusOK, "user_password.gohtml", data)
 }
