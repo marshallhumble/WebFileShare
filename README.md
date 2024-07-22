@@ -56,4 +56,4 @@ Then use the ```databaseSchema.sql``` file to create the local tables needed to 
 ```shell
 go run ./cmd/web
 ```
-Will start the application, on first run the application checks for SQL tables, and if not found will set them up and prompt for admin password on the console. 
+Will start the application
