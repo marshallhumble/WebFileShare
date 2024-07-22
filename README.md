@@ -49,6 +49,7 @@ Once that is done then
 ```shell
 docker compose up --build
 ```
+Then use the databaseSchema.sql file to create the local tables needed to run. 
 
 #### Running the Application
 
