@@ -13,8 +13,8 @@ This is current a work in progress, at the moment I have it setup so that it can
 
 ### Next Steps
 
-1. Create a unique link for downloading of files and clean up homepage
-2. Add in admin for all files
+1. Add in session timeout set by constant
+2. Add in remembering the last *X* passwords
 3. Finish/Add more tests on new features
 
 ### How to Run
