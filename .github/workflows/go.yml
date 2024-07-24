@@ -20,18 +20,18 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.22.3'
-
+  
     - name: Go Vet
       run: go vet ./...
+
+    - name: golang-govulncheck-action
+      uses: golang/govulncheck-action@v1.0.            
+      
+    - name: Gosec Security Checker
+      uses: securego/gosec@v2.18.2
       
     - name: Test
       run: go test -v ./...
       
     - name: Build
       run: go build -v ./...
-
-
-
-
-
-          
