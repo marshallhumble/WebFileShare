@@ -4,9 +4,6 @@ import (
 	"net/http"
 	"path/filepath"
 
-	//Internal
-	"fileshare/ui"
-
 	//External
 	"github.com/justinas/alice"
 )
@@ -18,7 +15,7 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
 	mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
+	//mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
 	//PING! PONG! used for testing
 	mux.HandleFunc("GET /ping", ping)
