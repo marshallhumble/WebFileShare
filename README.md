@@ -27,10 +27,10 @@ These certs will go in the ./tls/ folder off the root, you will get a "site not 
 go run /usr/local/go/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost
 ```
 
-OR OSX With Homebrew
+OR OSX With Homebrew ex with go 1.22.5
 
 ```shell
-go run /usr/local/Cellar/go/<version>/libexec/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost
+go run /opt/homebrew/Cellar/go/1.22.5/libexec/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost
 ```
 
 #### Setup Env File
