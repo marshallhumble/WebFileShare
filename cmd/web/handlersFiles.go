@@ -151,7 +151,7 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	file, fHeader, err := r.FormFile("uploadFile")
 	if err != nil {
-		app.logger.Error("Handler Error: ", err)
+		app.logger.Error("Handler Error: ", err.Error(), "error")
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnsupportedMediaType, "create.gohtml", data)
