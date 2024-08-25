@@ -73,6 +73,8 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.IdleTimeout = 15 * time.Minute
+	sessionManager.Cookie.Secure = true
 
 	app := &application{
 		logger:         logger,
