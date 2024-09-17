@@ -12,7 +12,7 @@ import (
 )
 
 type UserModelInterface interface {
-	Insert(name, email, password string, admin, user, guest bool) error
+	Insert(name, email, password string, admin, user, guest, disabled bool) error
 	Authenticate(email, password string) (int, error)
 	Exists(id int) (exist bool, admin bool, user bool, guest bool, disabled bool, error error)
 	GetAllUsers() ([]User, error)
@@ -38,7 +38,7 @@ type UserModel struct {
 }
 
 // Insert The usual user page sign-up no admins can be created this way explicitly declaring it false
-func (m *UserModel) Insert(name, email, password string, admin, user, guest bool) error {
+func (m *UserModel) Insert(name, email, password string, admin, user, guest, disabled bool) error {
 	// Create a bcrypt hash of the plain-text password.
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
@@ -50,7 +50,7 @@ func (m *UserModel) Insert(name, email, password string, admin, user, guest bool
 
 	// Use the Exec() method to insert the user details and hashed password
 	// into the users table.
-	_, err = m.DB.Exec(stmt, name, email, string(hashedPassword), admin, guest)
+	_, err = m.DB.Exec(stmt, name, email, string(hashedPassword), admin, user, guest, disabled)
 	if err != nil {
 		// If this returns an error, we use the errors.As() function to check
 		// whether the error has the type *mysql.MySQLError. If it does, the

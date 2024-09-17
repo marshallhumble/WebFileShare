@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/safeopen"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -185,8 +186,15 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 	if fHeader.Size > 0 {
 		f, _ := safeopen.CreateAt("./uploads/", fHeader.Filename)
 		defer f.Close()
+
+		_, err := io.Copy(f, file)
+		if err != nil {
+			return
+		}
 	}
 
+	//Insert(docName, senderUserName, senderEmail, recipientUserName, recipientEmail,
+	//		password string, expiresAt int) (int, error)
 	id, err := app.sharedFile.Insert(fHeader.Filename, form.SenderUserName, form.SenderEmail, form.RecipientUserName,
 		form.RecipientEmail, password, form.Expires)
 	if err != nil {
@@ -202,9 +210,10 @@ func (app *application) fileCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 	}
 	app.logger.Info("Email sent! ", "email: ", form.RecipientEmail)
-	// Insert(name, email, password string, admin, guest bool)
-	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password,
-		false, false, true); err != nil {
+
+	// Insert(name, email, password string, admin, user, guest, disabled bool) error
+	if err := app.users.Insert(form.RecipientUserName, form.RecipientEmail, password, false, false,
+		true, false); err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			app.sessionManager.Put(r.Context(), "flash", "Email address is already in use, no new account created")
 		} else {

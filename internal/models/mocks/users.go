@@ -7,7 +7,7 @@ import (
 type UserModel struct {
 }
 
-func (m *UserModel) Insert(name, email, password string, admin, user, guest bool) error {
+func (m *UserModel) Insert(name, email, password string, admin, user, guest, disabled bool) error {
 	switch email {
 	case "dupe@example.com":
 		return models.ErrDuplicateEmail
