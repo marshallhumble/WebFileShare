@@ -1,6 +1,7 @@
 {{define "nav"}}
 <nav>
     <div>
+        <h1><a href='/'>FileServ</a></h1>
         <!-- Toggle the link based on authentication status -->
         {{if .IsGuest}}
             <a href='/'>Home</a>
@@ -27,8 +28,6 @@
         {{else}}
             <button id="signUp" class="navbtn">Signup</button>
             <button id="logIn" class="navbtn">Login</button>
-            <a href='/user/signup'>Signup</a>
-            <a href='/user/login'>Login</a>
         {{end}}
 </nav>
 {{end}}
