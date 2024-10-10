@@ -1,33 +1,29 @@
 {{define "nav"}}
 <nav>
-    <div>
-        <h1><a href='/'>FileServ</a></h1>
-        <!-- Toggle the link based on authentication status -->
-        {{if .IsGuest}}
-            <a href='/'>Home</a>
-        {{end}}
-        {{if .IsUser}}
-        <a href='/files/create'>Upload file</a>
-        <a href='/user/update/'>My User Profile</a>
-        {{end}}
-
-        {{if .IsAdmin}}
-            <a href='/files/create'>Upload file</a>
-            <a href='/users/'>Users</a>
-        {{end}}
-    </div>
-    <div>
-    </div>
-        <!-- Toggle the links based on authentication status -->
-        {{if .IsAuthenticated}}
-            <form action='/user/logout' method='POST'>
-            <!-- Include the CSRF token -->
-            <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
-                <button>Logout</button>
-            </form>
-        {{else}}
-            <button id="signUp" class="navbtn">Signup</button>
-            <button id="logIn" class="navbtn">Login</button>
-        {{end}}
+  <div>
+    <h1><a href="/">FileServ</a></h1>
+    <!-- Toggle the link based on authentication status -->
+    {{if .IsGuest}}
+    <a href="/">Home</a>
+    {{end}} {{if .IsUser}}
+    <a href="/files/create">Upload file</a>
+    <a href="/user/update/">My User Profile</a>
+    {{end}} {{if .IsAdmin}}
+    <a href="/files/create">Upload file</a>
+    <a href="/users/">Users</a>
+    {{end}}
+  </div>
+  <div></div>
+  <!-- Toggle the links based on authentication status -->
+  {{if .IsAuthenticated}}
+  <form action="/user/logout" method="POST">
+    <!-- Include the CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+    <button>Logout</button>
+  </form>
+  {{else}}
+  <button id="signUp" class="navbtn">Signup</button>
+  <button id="logIn" class="navbtn">Login</button>
+  {{end}}
 </nav>
 {{end}}

@@ -1,0 +1,11 @@
+{
+  "overrides": [
+    {
+      "files": ["*.gohtml"],
+
+      "options": {
+        "parser": "html"
+      }
+    }
+  ]
+}

@@ -1,25 +1,23 @@
 {{define "base"}}
 <!doctype html>
-<html lang='en'>
-    <head>
-        <meta charset='utf-8'>
-        <title>Fileserv</title>
-         <!-- Link to the CSS stylesheet and favicon -->
-        <link rel='stylesheet' href='/static/css/main.css'>
-        <script src='/static/js/main.js' type='text/javascript'></script>
-    </head>
-    <body>
-        {{template "nav" .}}
-        <main>
-             {{with .Flash}}
-                <div class='flash'>{{.}}</div>
-             {{end}}
-            {{template "main" .}}
-        </main>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fileserv</title>
+    <!-- Link to the CSS stylesheet and favicon -->
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <script src="/static/js/main.js" type="text/javascript"></script>
+  </head>
+  <body>
+    {{template "nav" .}}
+    <main>
+      {{with .Flash}}
+      <div class="flash">{{.}}</div>
+      {{end}} {{template "main" .}}
+    </main>
 
-         <!-- And include the JavaScript file -->
-
-    </body>
-    <footer></footer>
+    <!-- And include the JavaScript file -->
+  </body>
+  <footer></footer>
 </html>
 {{end}}
