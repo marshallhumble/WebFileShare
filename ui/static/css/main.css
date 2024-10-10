@@ -1,127 +1,127 @@
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    font-family: "Proxima Nova", monospace;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: "Proxima Nova", monospace;
 }
 
-html, body {
-    height: 100%;
+html,
+body {
+  height: 100%;
 }
 
 body {
-    line-height: 1.5;
-    background-color: #ffffff;
-    color: #2e2e2e;
-    overflow-y: scroll;
+  line-height: 1.5;
+  background-color: #ffffff;
+  color: #2e2e2e;
+  overflow-y: scroll;
 }
 
-header, nav, main, footer {
-    padding: 2px calc((100% - 800px) / 2) 0;
+header,
+nav,
+main,
+footer {
+  padding: 2px calc((100% - 800px) / 2) 0;
 }
 
 .topnav {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    justify-content: left;
-    flex-direction: inherit;
-    border-bottom: 1px solid #E4E5E7;
-    padding-top: 17px;
-    padding-bottom: 15px;
-    background: #F7F9FA;
-    height: 60px;
-    color: #6A6C6F;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: left;
+  flex-direction: inherit;
+  border-bottom: 1px solid #e4e5e7;
+  padding-top: 17px;
+  padding-bottom: 15px;
+  background: #f7f9fa;
+  height: 60px;
+  color: #6a6c6f;
 }
 
 main {
-    margin-top: 54px;
-    margin-bottom: 54px;
-    min-height: calc(100vh - 345px);
-    overflow: auto;
+  margin-top: 54px;
+  margin-bottom: 54px;
+  min-height: calc(100vh - 345px);
+  overflow: auto;
 }
 
 /* Change the color of links on hover */
 .topnav a:hover {
-    background-color: #ddd;
-    color: black;
+  background-color: #ddd;
+  color: black;
 }
 
 /* Add a color to the active/current link */
 .topnav a.active {
-    background-color: #04AA6D;
-    color: white;
-    font-size: 12px;
+  background-color: #04aa6d;
+  color: white;
+  font-size: 12px;
 }
 
-
 nav {
-    border-bottom: 1px solid #E4E5E7;
-    padding-top: 17px;
-    padding-bottom: 15px;
-    background: #ffffff;
-    height: 60px;
-    color: #e1e5ec;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-bottom: 1px solid #e4e5e7;
+  padding-top: 17px;
+  padding-bottom: 15px;
+  background: #ffffff;
+  height: 60px;
+  color: #e1e5ec;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 nav a {
-    margin-right: 1.5em;
-    display: inline-block;
+  margin-right: 1.5em;
+  display: inline-block;
 }
 
 nav form {
-    display: inline-block;
-    margin-left: 1.5em;
+  display: inline-block;
+  margin-left: 1.5em;
 }
 
 nav div {
-    width: 50%;
-    float: left;
+  width: 50%;
+  float: left;
 }
 
 nav div:last-child {
-    text-align: right;
+  text-align: right;
 }
 
 nav div:last-child a {
-    margin-left: 1.5em;
-    margin-right: 0;
+  margin-left: 1.5em;
+  margin-right: 0;
 }
 
 nav a.live {
-    color: #34495E;
-    cursor: default;
+  color: #34495e;
+  cursor: default;
 }
 
 nav a.live:hover {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 nav a.live:after {
-    content: '';
-    display: block;
-    position: relative;
-    left: calc(50% - 7px);
-    top: 9px;
-    width: 14px;
-    height: 14px;
-    background: #F7F9FA;
-    border-left: 1px solid #E4E5E7;
-    border-bottom: 1px solid #E4E5E7;
-    -moz-transform: rotate(45deg);
-    -webkit-transform: rotate(-45deg);
+  content: "";
+  display: block;
+  position: relative;
+  left: calc(50% - 7px);
+  top: 9px;
+  width: 14px;
+  height: 14px;
+  background: #f7f9fa;
+  border-left: 1px solid #e4e5e7;
+  border-bottom: 1px solid #e4e5e7;
+  -moz-transform: rotate(45deg);
+  -webkit-transform: rotate(-45deg);
 }
-
-
 
 table {
-    display: inline flex;
-    flex: 400px;
-    flex-flow: row wrap;
-    border-spacing: 15px;
+  display: inline flex;
+  flex: 400px;
+  flex-flow: row wrap;
+  border-spacing: 15px;
 }
-
