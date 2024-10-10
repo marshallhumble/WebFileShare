@@ -20,7 +20,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.23.2'
-  
     - name: Go Vet
       run: go vet ./...       
       
