@@ -1,31 +1,31 @@
-{{define "title"}}SharedFile #{{.SharedFile.Id}}{{end}}
+{{define "title"}}SharedFile #{{.SharedFile.Id}}{{end}} {{define "main"}}
+<!-- Include the CSRF token -->
+<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
 
-{{define "main"}}
-    <!-- Include the CSRF token -->
-    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+{{with .SharedFile}}
 
+<form action="/files/download/{{.DocName}}" method="GET">
+  <input type="hidden" value="{{.DocName}}" name="file" />
 
-    {{with .SharedFile}}
-
-    <form action='/files/download/{{.DocName}}' method='GET'>
-    <input type='hidden' value='{{.DocName}}' name='file'>
-
-    <div class='sharedfile'>
-        <div class='metadata'>
-            <strong>{{.DocName}}</strong>
-            <span>#{{.Id}}</span>
-        </div>
-        <pre><code>{{.DocName}}</code></pre>
-        <div class='metadata'>
-            <time>Created: {{.SenderEmail}}</time>
-            <time>Expires: {{.RecipientEmail}}</time>
-            <time>Created: <td>{{humanDate .CreatedAt}}</time>
-            <time>Doc Name: {{.DocName}}  </time>
-        </div>
-
-        <input type='submit' name='Download' value='Download'>
-        <input type='submit' value='Delete' formaction='/files/delete/{{.Id}}'>
+  <div class="sharedfile">
+    <div class="metadata">
+      <strong>{{.DocName}}</strong>
+      <span>#{{.Id}}</span>
     </div>
-    {{end}}
-    </form>
+    <pre><code>{{.DocName}}</code></pre>
+    <div class="metadata">
+      <time>Created: {{.SenderEmail}}</time>
+      <time>Expires: {{.RecipientEmail}}</time>
+      <time
+        >Created:
+        <td>{{humanDate .CreatedAt}}</td></time
+      >
+      <time>Doc Name: {{.DocName}} </time>
+    </div>
+
+    <input type="submit" name="Download" value="Download" />
+    <input type="submit" value="Delete" formaction="/files/delete/{{.Id}}" />
+  </div>
+  {{end}}
+</form>
 {{end}}

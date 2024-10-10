@@ -1,33 +1,30 @@
-{{define "title"}}Users{{end}}
-
-{{define "main"}}
-    <!-- Include the CSRF token -->
-    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
-    <h2>All Users</h2>
-        {{if .Users}}
-            <table class="users">
-                <tr>
-                    <th class="users">Name: </th>
-                    <th class="users">Email: </th>
-                    <th class="users">Created: </th>
-                    <th class="users">Admin: </th>
-                    <th class="users">User: </th>
-                    <th class="users">Guest: </th>
-                    <th class="users">Disabled: </th>
-                </tr>
-                {{range .Users}}
-                    <tr>
-                        <td class="users"><a href='/user/edit/{{.ID}}'>{{.Name}}</a></td>
-                        <td class="users">{{.Email}}</td>
-                        <td class="users">{{humanDate .Created}}</td>
-                        <td class="users">{{.Admin}}</td>
-                        <td class="users">{{.User}}</td>
-                        <td class="users">{{.Guest}}</td>
-                        <td class="users">{{.Disabled}}</td>
-                    </tr>
-                {{end}}
-            </table>
-    {{else}}
-        <p>No users found</p>
-    {{end}}
-{{end}}
+{{define "title"}}Users{{end}} {{define "main"}}
+<!-- Include the CSRF token -->
+<input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+<h2>All Users</h2>
+{{if .Users}}
+<table class="users">
+  <tr>
+    <th class="users">Name:</th>
+    <th class="users">Email:</th>
+    <th class="users">Created:</th>
+    <th class="users">Admin:</th>
+    <th class="users">User:</th>
+    <th class="users">Guest:</th>
+    <th class="users">Disabled:</th>
+  </tr>
+  {{range .Users}}
+  <tr>
+    <td class="users"><a href="/user/edit/{{.ID}}">{{.Name}}</a></td>
+    <td class="users">{{.Email}}</td>
+    <td class="users">{{humanDate .Created}}</td>
+    <td class="users">{{.Admin}}</td>
+    <td class="users">{{.User}}</td>
+    <td class="users">{{.Guest}}</td>
+    <td class="users">{{.Disabled}}</td>
+  </tr>
+  {{end}}
+</table>
+{{else}}
+<p>No users found</p>
+{{end}} {{end}}
