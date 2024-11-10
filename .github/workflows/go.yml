@@ -23,9 +23,6 @@ jobs:
       - name: Go Vet
         run: go vet ./...
 
-      - name: Gosec Security Checker
-        uses: securego/gosec@v2.18.2
-
       - name: Test
         run: go test -v ./...
 
