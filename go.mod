@@ -1,6 +1,6 @@
 module fileshare
 
-go 1.23.2
+go 1.23.3
 
 require (
 	github.com/alexedwards/scs/mysqlstore v0.0.0-20240316134038-7e11d57e8885
@@ -10,10 +10,10 @@ require (
 	github.com/google/safeopen v0.0.0-20240125081138-66b54d5181c6
 	github.com/justinas/alice v1.2.0
 	github.com/justinas/nosurf v1.1.1
-	golang.org/x/crypto v0.28.0
+	golang.org/x/crypto v0.29.0
 )
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
 )
