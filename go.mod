@@ -9,7 +9,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.2
 	github.com/google/safeopen v0.0.0-20240125081138-66b54d5181c6
 	github.com/justinas/alice v1.2.0
-	github.com/justinas/nosurf v1.1.1
+	github.com/justinas/nosurf v1.2.0
 	golang.org/x/crypto v0.38.0
 )
 
